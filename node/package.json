@@ -1,0 +1,9 @@
+{
+    "name": "serial-comms",
+    "version": "0.0.1",
+    "description": "Communicate between a webserver and arduino serial",
+    "dependencies": {
+        "serialport": "^10.0.0",
+        "socket.io": "^4.6.0"
+    }
+}
