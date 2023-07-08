@@ -1,11 +1,12 @@
-var http = require('http');
-const url = require('url');
-const fs = require('fs');
-const path = require('path');
+import http from 'http';
+import url from 'url';
+import fs from 'fs';
+import path from 'path';
+import open from 'open';
 
-const { SerialPort } = require("serialport");
+import {SerialPort} from "serialport";
 
-const { ReadlineParser } = require('@serialport/parser-readline');
+import {ReadlineParser} from '@serialport/parser-readline';
 
 var port = new SerialPort({
     path: '/dev/serial0',
@@ -44,7 +45,7 @@ var app = http.createServer(function(req, res) {
     // by limiting the path to current directory only
     const sanitizePath = path.normalize(parsedUrl.pathname).replace(/^(\.\.[\/\\])+/, '');
     const directory = '/html/' + sanitizePath;
-    let pathname = path.join(__dirname, directory);
+    let pathname = path.join('/home/medusa/raspberry_pi_master_module/node/, directory);
 
 
     // extract URL path
@@ -84,7 +85,7 @@ var app = http.createServer(function(req, res) {
     });
 });
 
-const { Server } = require("socket.io");
+import { Server } from "socket.io";
 const io = new Server(app);
 
 io.on('connection', function(data){
@@ -98,3 +99,4 @@ parser.on('data', function(data) {
 });
 
 app.listen(8000);
+open('http://localhost:8000', {app: {name: 'chromium-browser', arguments: ['--start-fullscreen']}});
