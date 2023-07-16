@@ -13,7 +13,7 @@ uint8_t dePin = 2;
 uint8_t maxRetries= 2;
 uint8_t retries = 0;
 
-uint8_t score = 0;
+uint16_t score = 0;
 
 enum MODE {
   IDLE = 0,
@@ -125,14 +125,6 @@ uint32_t drum_interval = 1000/30;
 uint32_t last_mode_tick = 0;
 uint32_t mode_interval = 1000/5;
 
-void updateRPi()
-{
-    //  Making this easy to change for now ...
-    rpiSerial.write(0xFF);  // Delimiter / Message Start!
-    rpiSerial.write(mode);
-    rpiSerial.write(score);
-}
-
 void loop()
 {
     current_tick = millis();
@@ -147,7 +139,9 @@ void loop()
                 node.writeSingleCoil(answer,1,2);
                 //  Keep track of score using drum triggers!
                 score += 1;
-                updateRPi();
+                rpiSerial.print("S");
+                rpiSerial.print(score);
+                rpiSerial.print("\n");
             }
             /*
             uint8_t result = node.readInputRegisters(0,1,1);
@@ -182,13 +176,30 @@ void loop()
         {
             mode = newMode;
 
+            switch (mode)
+            {
+            case 0:
+                // Fall through!
+            case 1:
+                rpiSerial.print("IDLE\n");
+                break;
+            case 2:
+                rpiSerial.print("GAME\n");
+                break;
+            case 3:
+                rpiSerial.print("FAIL\n");
+                break;
+            default:
+                rpiSerial.print("IDLE\n");
+                break;
+            }
+
             if (newMode == GAME)
             {
                 //  If the newMode is a GAME ... reset the score!
                 score = 0;
+                rpiSerial.print("S0\n");
             }
-
-            updateRPi();
         }
 
         if (mode == GAME)
@@ -200,7 +211,9 @@ void loop()
             {
                 score = newScore;
 
-                updateRPi();
+                rpiSerial.print("S");
+                rpiSerial.print(score);
+                rpiSerial.print("\n");
             }
         }
 
