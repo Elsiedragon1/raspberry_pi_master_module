@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Medusa</title>
+        <!--<link href="style.css" rel="stylesheet"/>-->
+        <style>
+@import url('https://fonts.googleapis.com/css2?family=Palette+Mosaic&display=swap');
+
+html, body, div {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+body {
+    background-color: #333;
+    background-image: url(./1674714.jpg);
+    background-size: cover;
+}
+#marquee {
+    background: red;
+    position: absolute;
+    bottom: 20px;
+    height: 220px;
+    width: 100vw;
+    overflow: hidden;
+    background-image: url(./istockphoto-643964216-170667a.jpg);
+    background-size: cover;
+}
+#marquee div {
+    width: 200%;
+    height: 220px;
+    position: absolute;
+    overflow: hidden;
+
+    animation: marquee 30s linear infinite;
+}
+#marquee span {
+    
+    font-family: 'Palette Mosaic';
+  float: left;
+  width: 25%;
+  height: 200px;
+  font-size: 180px;
+  transform: translateY(-20px);
+}
+@keyframes marquee {
+  0% { left: 0; }
+  100% { left: -100%; }
+}
+#message {
+    display: block;
+    height: 1000px;
+    width: 100%;
+    font-size: 720px;
+    text-align: center;
+    background-color: #999;
+    background-image: url(./istockphoto-643964216-170667a.jpg);
+    background-size: cover;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    /*-webkit-text-stroke: 3px #000000;*/
+    /*text-shadow: 0px 0px 10px 10px #333*/
+    -webkit-filter: drop-shadow(0px 0px 20px #000);
+    filter: drop-shadow(0px 0px 20px #000);
+    color: #c2131300;
+    font-family: 'Palette Mosaic';
+    transform-origin: center;
+    transform: translateY(-100px) rotate(10deg);
+    
+}
+
+
+        </style>
+        <!--<script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>-->
+        <script src="socket.io.min.js"></script>
+    <!--sourceMappingURL=socket.io.min.js.map-->
+    </head>
+    <body>
+        <div id="score">
+        </div>
+        <div id="highscore">
+
+        </div>
+
+        <div id="marquee">
+            <div>
+                <span>MODE</span>
+                <span>MODE</span>
+                <span>MODE</span>
+                <span>MODE!</span>
+            </div>
+        </div>
+        <div id="message">
+            9013
+        </div>
+        <script>
+const socket = io();
+
+const STATE = {
+    IDLE: 'idle',
+    BUSK: 'busk',
+    GAME: 'game'
+}
+
+let state = STATE.IDLE;
+
+socket.on('data', function(data){
+    console.log(data);
+    if (data[0] == 'S') {
+        // A Score message has been recieved!
+        document.getElementById("message").innerHTML = data.substring(1);
+    } else {
+        switch (data) {
+            case "IDLE":
+                break;
+            case "BUSK":
+                break;
+            case "GAME":
+                break;
+            default:
+                break;
+        }
+    }
+});
+        </script>
+    </body>
+</html>
