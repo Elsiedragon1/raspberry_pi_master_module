@@ -13,6 +13,8 @@ uint8_t dePin = 2;
 uint8_t maxRetries= 2;
 uint8_t retries = 0;
 
+uint8_t snakeTransition = 10;
+
 uint16_t score = 0;
 
 enum MODE {
@@ -81,6 +83,30 @@ uint16_t resend_last_response()
     }
 }
 
+/**********************************************************************
+    Example of handling the Modbus error messages more explicitly!
+***********************************************************************
+
+uint8_t result = node.readInputRegisters(0,1,1);
+
+switch (result) {
+    case 0x00: // ku8MBSuccess
+        //success
+        uint16_t answer = node.getResponseBuffer(0x00);
+        if (answer > 0)
+        {
+            node.writeSingleCoil(answer,1,2);
+        }
+        break;
+    case 0xE2: // ku8MBResponseTimedOut:
+        // Fallthrough
+    case 0xE3: // ku8MBInvalidCRC:
+        // Fallthrough
+    default:
+        // Fallthrough
+        // RESEND!
+}*/
+
 uint16_t get_triggered_drum()
 {
     uint8_t result = node.readInputRegisters(0,1,1);
@@ -123,7 +149,7 @@ uint32_t last_drum_tick = 0;
 uint32_t drum_interval = 1000/30;
 
 uint32_t last_mode_tick = 0;
-uint32_t mode_interval = 1000/5;
+uint32_t mode_interval = 1000/10;
 
 void loop()
 {
@@ -136,33 +162,22 @@ void loop()
             uint16_t answer = get_triggered_drum();
             if (answer != 0)
             {
-                node.writeSingleCoil(answer,1,2);
-                //  Keep track of score using drum triggers!
-                score += 1;
-                rpiSerial.print("S");
-                rpiSerial.print(score);
-                rpiSerial.print("\n");
-            }
-            /*
-            uint8_t result = node.readInputRegisters(0,1,1);
+                //  Change the target to the snakes once the threshold has been reached
+                //  If the triggered drum is 5, this will be handled by the saxophone flamethrowers
+                if (score > snakeTransition && answer != 5)
+                {
+                    node.writeSingleCoil(answer,1,3);
+                } else {
+                    node.writeSingleCoil(answer,1,2);
+                }
 
-            switch (result) {
-                case 0x00: // ku8MBSuccess
-                    //success
-                    uint16_t answer = node.getResponseBuffer(0x00);
-                    if (answer > 0)
-                    {
-                        node.writeSingleCoil(answer,1,2);
-                    }
-                    break;
-                case 0xE2: // ku8MBResponseTimedOut:
-                    // Fallthrough
-                case 0xE3: // ku8MBInvalidCRC:
-                    // Fallthrough
-                default:
-                    // Fallthrough
-                    // RESEND!
-            }*/
+                //  Keep track of score using drum triggers?
+                //  For now keep the drums as the single source of truth!
+                //score += 1;
+                //rpiSerial.print("S");
+                //rpiSerial.print(score);
+                //rpiSerial.print("\n");
+            }
 
             last_drum_tick = current_tick;
         }
