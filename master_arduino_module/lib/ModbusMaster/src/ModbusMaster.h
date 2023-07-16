@@ -55,8 +55,9 @@ Set to 1 to enable debugging features within class:
 
 /* _____PROJECT INCLUDES_____________________________________________________ */
 // functions to calculate Modbus Application Data Unit CRC
-//#include "util/crc16.h"
+#include "util/crc16.h"
 
+/*
 static uint16_t crc16_update(uint16_t crc, uint8_t a)
 {
   int i;
@@ -72,9 +73,10 @@ static uint16_t crc16_update(uint16_t crc, uint8_t a)
 
   return crc;
 }
+*/
 
 // functions to manipulate words
-//#include "util/word.h"
+#include "util/word.h"
 
 /** @ingroup util_word
     Return low word of a 32-bit integer.
@@ -82,11 +84,12 @@ static uint16_t crc16_update(uint16_t crc, uint8_t a)
     @param uint32_t ww (0x00000000..0xFFFFFFFF)
     @return low word of input (0x0000..0xFFFF)
 */
+/*
 static inline uint16_t lowWord(uint32_t ww)
 {
   return (uint16_t) ((ww) & 0xFFFF);
 }
-
+*/
 
 /** @ingroup util_word
     Return high word of a 32-bit integer.
@@ -94,11 +97,12 @@ static inline uint16_t lowWord(uint32_t ww)
     @param uint32_t ww (0x00000000..0xFFFFFFFF)
     @return high word of input (0x0000..0xFFFF)
 */
+/*
 static inline uint16_t highWord(uint32_t ww)
 {
   return (uint16_t) ((ww) >> 16);
 }
-
+*/
 
 /* _____CLASS DEFINITIONS____________________________________________________ */
 /**
