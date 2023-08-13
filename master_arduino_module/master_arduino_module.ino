@@ -149,7 +149,7 @@ uint32_t last_drum_tick = 0;
 uint32_t drum_interval = 1000/30;
 
 uint32_t last_mode_tick = 0;
-uint32_t mode_interval = 1000/10;
+uint32_t mode_interval = 1000/5;    //  Was 1000/10 ... change back to try a faster update rate
 
 void loop()
 {
@@ -166,17 +166,22 @@ void loop()
                 //  If the triggered drum is 5, this will be handled by the saxophone flamethrowers
                 if (score > snakeTransition && answer != 5)
                 {
-                    node.writeSingleCoil(answer,1,3);
+                    node.writeSingleCoil(answer,1,2);
+                    //node.writeSingleCoil(answer,1,3);
+                    
+                    // Comment line 169, and uncomment line 170 to swap from the saxophones to the snake head after 10 successes
                 } else {
                     node.writeSingleCoil(answer,1,2);
                 }
 
                 //  Keep track of score using drum triggers?
                 //  For now keep the drums as the single source of truth!
-                //score += 1;
-                //rpiSerial.print("S");
-                //rpiSerial.print(score);
-                //rpiSerial.print("\n");
+
+                //  Comment out the following lines to only get score from drums
+                score += 1;
+                rpiSerial.print("S");
+                rpiSerial.print(score);
+                rpiSerial.print("\n");
             }
 
             last_drum_tick = current_tick;
