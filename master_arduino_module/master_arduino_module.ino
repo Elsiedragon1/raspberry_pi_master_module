@@ -166,8 +166,8 @@ void loop()
                 //  If the triggered drum is 5, this will be handled by the saxophone flamethrowers
                 if (score > snakeTransition && answer != 5)
                 {
-                    node.writeSingleCoil(answer,1,2);
-                    //node.writeSingleCoil(answer,1,3);
+                    //node.writeSingleCoil(answer,1,2);
+                    node.writeSingleCoil(answer,1,3);
                     
                     // Comment line 169, and uncomment line 170 to swap from the saxophones to the snake head after 10 successes
                 } else {
