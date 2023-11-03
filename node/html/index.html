@@ -17,6 +17,50 @@ body {
     background-image: url(./1674714.jpg);
     background-size: cover;
 }
+.group {
+    display: flex;
+    padding-bottom: 10px;
+}
+.button {
+    flex-grow: 1;
+    display: inline-block;
+    background-color: #ccc;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 45px;
+    height: 45px;
+    border-radius: 10px;
+    margin: 2px;
+    user-select: none;
+    border: 0;
+    box-shadow: none;
+}
+.button:hover {
+    background-color: #999;
+}
+.button:active {
+    background-color: #F69;
+}
+.feedbackBlock {
+    display: inline-block;
+    background-color: #ccc;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 45px;
+    height: 45px;
+    width: 200px;
+    margin: 2px;
+}
+.feedback {
+    flex-grow: 1;
+    display: inline-block;
+    background-color: #ccc;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 45px;
+    height: 45px;
+    margin: 2px;
+}
 #marquee {
     background: red;
     position: absolute;
@@ -32,12 +76,10 @@ body {
     height: 220px;
     position: absolute;
     overflow: hidden;
-
     animation: marquee 30s linear infinite;
 }
 #marquee span {
-    
-    font-family: 'Palette Mosaic';
+  font-family: 'Palette Mosaic';
   float: left;
   width: 25%;
   height: 200px;
@@ -54,7 +96,7 @@ body {
     width: 100%;
     font-size: 720px;
     text-align: center;
-    background-color: #999;
+    background-color: #aaa;
     background-image: url(./istockphoto-643964216-170667a.jpg);
     background-size: cover;
     -webkit-background-clip: text;
@@ -68,22 +110,93 @@ body {
     font-family: 'Palette Mosaic';
     transform-origin: center;
     transform: translateY(-100px) rotate(10deg);
-    
 }
-
-
+dialog {
+    min-width: 30%;
+}
+::backdrop {
+    background-color: #000;
+    opacity: 0.6;
+}
         </style>
         <!--<script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>-->
         <script src="socket.io.min.js"></script>
     <!--sourceMappingURL=socket.io.min.js.map-->
     </head>
     <body>
+        <dialog>
+                Saxaphones (ID: 3)
+                <div class="group">
+                    <div class="saxFlame button" data-id="1">Fire 1</div>
+                    <div class="saxFlame button" data-id="2">Fire 2</div>
+                    <div class="saxFlame button" data-id="3">Fire 3</div>
+                    <div class="saxFlame button" data-id="4">Fire 4</div>
+                    <div class="saxFlame button" data-id="5">Fire 5</div>
+                </div>
+<!--
+                <div class="group">
+                    <p>Snake Heads</p>
+                        <button id="snakeFlame1" value="1">Fire 1</button>
+                        <button class="snakeFlame2" value="2">Fire 2</button>
+                        <button class="snakeFlame3">Fire 3</button>
+                        <button class="snakeFlame4">Fire 4</button>
+                    </div>
+                        <div class="group">
+                        <button class="snakeEyesOn1">Eyes On 1</button>
+                        <button class="snakeEyesOn2">Eyes On 2</button>
+                        <button class="snakeEyesOn3">Eyes On 3</button>
+                        <button class="snakeEyesOn4">Eyes On 4</button>
+                    </div>
+                        <div class="group">
+
+                        <button class="snakeEyesOff1">Eyes Off 1</button>
+                        <button class="snakeEyesOff2">Eyes Off 2</button>
+                        <button class="snakeEyesOff3">Eyes Off 3</button>
+                        <button class="snakeEyesOff4">Eyes Off 4</button>
+                    </div>
+                        <div class="group">
+                        <button class="snakeMouthOpen1">Mouth Open 1</button>
+                        <button class="snakeMouthOpen2">Mouth Open 2</button>
+                        <button class="snakeMouthOpen3">Mouth Open 3</button>
+                        <button class="snakeMouthOpen4">Mouth Open 4</button>
+                    </div>
+                        <div class="group">
+                        <button class="snakeMouthClose1">Mouth Close 1</button>
+                        <button class="snakeMouthClose2">Mouth Close 2</button>
+                        <button class="snakeMouthClose3">Mouth Close 3</button>
+                        <button class="snakeMouthClose4">Mouth Close 4</button>
+                    </div>
+                        <div class="group">
+                    Snake Bodies
+
+                        <button class="snakesRight">Right</button>
+                        <button class="snakesLeft">Left</button>
+                        <button class="snakesFront">Front</button>
+                        <button class="snakesBack">Back</button>
+                        <button class="snakesCenter">Center</button>
+
+                    </div>
+--->
+                    Scissor Lift (ID: 4)
+                    <div class="group">
+                        <div class="scissor button" data-id="2">Raise</div>
+                        <div class="scissor button" data-id="4">STOP!</div>
+                        <div class="scissor button" data-id="0">Lower</div>
+                        <div id="scissorStatus" class="feedbackBlock">UNKNOWN</div>
+                    </div>
+                    <div class="group">
+                        <div class="scissorStop feedback" data-id="0">Bottom</div>
+                        <div class="scissorStop feedback" data-id="1">Top</div>
+                        <div class="scissorStop feedback" data-id="2">Emergency</div>
+                    </div>
+                </label>
+            <button id="closeDialog" autofocus>Close</button>
+        </dialog>
+        <button id="showDialog">Show the dialog</button>
         <div id="score">
         </div>
         <div id="highscore">
-
         </div>
-
         <div id="marquee">
             <div>
                 <span>MODE</span>
@@ -95,6 +208,7 @@ body {
         <div id="message">
             9013
         </div>
+
         <script>
 const socket = io();
 
@@ -104,13 +218,50 @@ const STATE = {
     GAME: 'game'
 }
 
+const dialog = document.querySelector("dialog");
+const showButton = document.getElementById("showDialog");
+const closeButton = document.getElementById("closeDialog");
+const saxButtons = [...document.getElementsByClassName("saxFlame")];
+const scissorButtons = [...document.getElementsByClassName("scissor")];
+const scissorStatus = document.getElementById("scissorStatus");
+const messageDisplay = document.getElementById("message")
+const scissorStops= [...document.getElementsByClassName("scissorStop")];
+
+// "Show the dialog" button opens the dialog modally
+showButton.addEventListener("click", () => {
+  dialog.showModal();
+});
+
+// "Close" button closes the dialog
+closeButton.addEventListener("click", () => {
+  dialog.close();
+});
+
+for (var i = 0; i < saxButtons.length; i++) {
+    let id = saxButtons[i].dataset.id;    
+    saxButtons[i].addEventListener("click", () => {
+        console.log("Fire Saxaphone " + id);
+        socket.emit('saxaphone', id);
+    });
+}
+
+for (var i = 0; i < scissorButtons.length; i++) {
+    let id = scissorButtons[i].dataset.id;
+    scissorButtons[i].addEventListener("click", () => {
+        console.log("Scissor Mode " + id);
+        socket.emit('scissor', id);
+    });
+}
+
+// Todo: Implement feedback from scissorlift!
+
 let state = STATE.IDLE;
 
-socket.on('data', function(data){
+socket.on('data', function(data) {
     console.log(data);
     if (data[0] == 'S') {
         // A Score message has been recieved!
-        document.getElementById("message").innerHTML = data.substring(1);
+        messageDisplay.innerHTML = data.substring(1);
     } else {
         switch (data) {
             case "IDLE":
@@ -121,6 +272,58 @@ socket.on('data', function(data){
                 break;
             default:
                 break;
+        }
+    }
+});
+
+socket.on('scissorStatus', function(data) {
+    console.log(data);
+/*
+#define LOWERED 0
+#define RISE 1
+#define RISEN 2
+#define LOWER 3
+#define STOP 4
+#define ERROR 5
+*/
+    switch (data[0]) {
+        case 0:
+            scissorStatus.innerHTML = "LOWERED";
+            scissorStatus.style.backgroundColor = "#0F0";
+            break;
+        case 1:
+            scissorStatus.innerHTML = " RISE ";
+            scissorStatus.style.backgroundColor = "#0FF";
+            break;
+        case 2:
+            scissorStatus.innerHTML = "RISEN";
+            scissorStatus.style.backgroundColor = "#00F";
+            break;
+        case 3:
+            scissorStatus.innerHTML = "LOWER";
+            scissorStatus.style.backgroundColor = "#0FF";
+            break;
+        case 4:
+            scissorStatus.innerHTML = " STOP ";
+            scissorStatus.style.backgroundColor = "#FF0";
+            break;
+        case 5:
+            scissorStatus.innerHTML = "ERROR";
+            scissorStatus.style.backgroundColor = "#F00";
+            break;
+        default:
+            break;
+    }
+});
+
+socket.on('scissorStop', function(data) {
+    console.log(data);
+    for (var i = 0; i < data.length; i++) {
+        if (data[i] == false)
+        {
+            scissorStops[i].style.backgroundColor = "#3F3";
+        } else {
+            scissorStops[i].style.backgroundColor = "#F33";
         }
     }
 });

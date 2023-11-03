@@ -5,7 +5,8 @@
     "dependencies": {
         "serialport": "^10.0.0",
         "socket.io": "^4.6.0",
-        "open": "^9.1.0"
+        "open": "^9.1.0",
+        "modbus-serial": "^8.0.13"
     },
     "type": "module"
 }
