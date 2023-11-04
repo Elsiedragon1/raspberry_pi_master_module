@@ -133,67 +133,22 @@ dialog {
                     <div class="saxFlame button" data-id="4">Fire 4</div>
                     <div class="saxFlame button" data-id="5">Fire 5</div>
                 </div>
-<!--
+                Scissor Lift (ID: 4)
                 <div class="group">
-                    <p>Snake Heads</p>
-                        <button id="snakeFlame1" value="1">Fire 1</button>
-                        <button class="snakeFlame2" value="2">Fire 2</button>
-                        <button class="snakeFlame3">Fire 3</button>
-                        <button class="snakeFlame4">Fire 4</button>
-                    </div>
-                        <div class="group">
-                        <button class="snakeEyesOn1">Eyes On 1</button>
-                        <button class="snakeEyesOn2">Eyes On 2</button>
-                        <button class="snakeEyesOn3">Eyes On 3</button>
-                        <button class="snakeEyesOn4">Eyes On 4</button>
-                    </div>
-                        <div class="group">
-
-                        <button class="snakeEyesOff1">Eyes Off 1</button>
-                        <button class="snakeEyesOff2">Eyes Off 2</button>
-                        <button class="snakeEyesOff3">Eyes Off 3</button>
-                        <button class="snakeEyesOff4">Eyes Off 4</button>
-                    </div>
-                        <div class="group">
-                        <button class="snakeMouthOpen1">Mouth Open 1</button>
-                        <button class="snakeMouthOpen2">Mouth Open 2</button>
-                        <button class="snakeMouthOpen3">Mouth Open 3</button>
-                        <button class="snakeMouthOpen4">Mouth Open 4</button>
-                    </div>
-                        <div class="group">
-                        <button class="snakeMouthClose1">Mouth Close 1</button>
-                        <button class="snakeMouthClose2">Mouth Close 2</button>
-                        <button class="snakeMouthClose3">Mouth Close 3</button>
-                        <button class="snakeMouthClose4">Mouth Close 4</button>
-                    </div>
-                        <div class="group">
-                    Snake Bodies
-
-                        <button class="snakesRight">Right</button>
-                        <button class="snakesLeft">Left</button>
-                        <button class="snakesFront">Front</button>
-                        <button class="snakesBack">Back</button>
-                        <button class="snakesCenter">Center</button>
-
-                    </div>
---->
-                    Scissor Lift (ID: 4)
-                    <div class="group">
-                        <div class="scissor button" data-id="2">Raise</div>
-                        <div class="scissor button" data-id="4">STOP!</div>
-                        <div class="scissor button" data-id="0">Lower</div>
-                        <div id="scissorStatus" class="feedbackBlock">UNKNOWN</div>
-                    </div>
-                    <div class="group">
-                        <div class="scissorStop feedback" data-id="0">Bottom</div>
-                        <div class="scissorStop feedback" data-id="1">Top</div>
-                        <div class="scissorStop feedback" data-id="2">Emergency</div>
-                    </div>
-                    Drum Interface (ID: 5)
-                    <div class="group">
-                        <div class="drumMode button">Start Game!</div>
-                    </div>
-                </label>
+                    <div class="scissor button" data-id="2">Raise</div>
+                    <div class="scissor button" data-id="4">STOP!</div>
+                    <div class="scissor button" data-id="0">Lower</div>
+                    <div id="scissorStatus" class="feedbackBlock">UNKNOWN</div>
+                </div>
+                <div class="group">
+                    <div class="scissorStop feedback" data-id="0">Bottom</div>
+                    <div class="scissorStop feedback" data-id="1">Top</div>
+                    <div class="scissorStop feedback" data-id="2">Emergency</div>
+                </div>
+                Drum Interface (ID: 5)
+                <div class="group">
+                    <div class="drumMode button">Start Game!</div>
+                </div>
             <button id="closeDialog" autofocus>Close</button>
         </dialog>
         <button id="showDialog">Show the dialog</button>
@@ -230,7 +185,7 @@ const scissorButtons = [...document.getElementsByClassName("scissor")];
 const scissorStatus = document.getElementById("scissorStatus");
 const messageDisplay = document.getElementById("message")
 const scissorStops= [...document.getElementsByClassName("scissorStop")];
-const drumMode = [...document.getElementByClassName("druMode")];
+const drumMode = [...document.getElementsByClassName("drumMode")];
 
 
 // "Show the dialog" button opens the dialog modally
@@ -244,7 +199,7 @@ closeButton.addEventListener("click", () => {
 });
 
 for (var i = 0; i < saxButtons.length; i++) {
-    let id = saxButtons[i].dataset.id;    
+    let id = saxButtons[i].dataset.id;
     saxButtons[i].addEventListener("click", () => {
         console.log("Fire Saxaphone " + id);
         socket.emit('saxaphone', id);

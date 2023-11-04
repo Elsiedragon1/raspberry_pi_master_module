@@ -6,6 +6,8 @@ import open from 'open';
 import modbusRTU from 'modbus-serial';
 
 const client = new modbusRTU;
+
+client.setTimeout(500);
 client.connectRTUBuffered('/dev/serial/by-id/usb-1a86_USB_Single_Serial_556F024543-if00', {baudRate: 115200, dataBits: 8, parity: 'even', stopBits: 1, flowcontrol: false});
 //client.connectRTUBuffered('COM9', {baudRate: 115200, dataBits: 8, parity: 'even', stopBits: 1, flowcontrol: false});
 
@@ -133,7 +135,7 @@ const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 let state = "DEBUG";
 let stateInitialised = false;
-let waitingForReset = true;
+let waitingForReset = false;
 let score = 0;
 
 function changeState( new_state )
@@ -153,7 +155,7 @@ setInterval(function()
     {
         gameState();
     }
-}, 1000/10);
+}, 1000/30);
 
 async function debugState() {
     client.setID(4);
@@ -164,7 +166,7 @@ async function debugState() {
             io.emit('scissorStatus', data.data);
         }
     });
-    await sleep(50);    //  Wait for 50ms
+    await sleep(10);    //  Wait for 50ms
     client.readCoils(0, 3, function(err, data)
     {
         if (data)
@@ -186,7 +188,9 @@ async function debugState() {
 let maxRetries = 3;
 let retries = 0;
 
-async function resendLastTriggeredDrum()
+let drumTrigger = 0;
+
+function resendLastTriggeredDrum()
 {
     retries += 1;
     //  Assume client.setID(5); ?
@@ -195,11 +199,11 @@ async function resendLastTriggeredDrum()
         client.readInputRegisters(1,1, function(err, data){
             if (data)
             {
-                return data.data[0];
+                drumTrigger = data.data[0];
             }
             if (err)
             {
-                return resendLastTriggeredDrum();
+                resendLastTriggeredDrum();
                 //wait?
             }
         });
@@ -207,6 +211,7 @@ async function resendLastTriggeredDrum()
     else
     {
         //  Retry failure! Move on!
+        drumTrigger = 0;
         retries = 0;
         return 0;
     }
@@ -219,12 +224,13 @@ function getTriggeredDrum()
     {
         if (data)
         {
-            return data.data[0];
+            console.log(data);
+            drumTrigger = data.data[0];
         }
         if (err)
         {
             // resend data!
-            return resendLastTriggeredDrum();
+            resendLastTriggeredDrum();
         }
     })
 }
@@ -239,25 +245,12 @@ function gameState()
         if (state == "GAME")
         {
         //          Game code!
-            let drumTrigger = getTriggeredDrum();
+            getTriggeredDrum();
+            sleep(10);
             if (drumTrigger != 0)   
             {
                 score += 1;
                 if (score > 10 && drumTrigger != 5)
-                {
-                    client.setID(3);
-                    client.writeCoil(drumTrigger, true, function(err, data) {
-                        if (data)
-                        {
-                            console.log(data.data);
-                        }
-                        else
-                        {
-                            console.log(err);
-                        }
-                    });
-                }
-                else
                 {
                     client.setID(1);
                     client.writeCoil(drumTrigger, true, function(err, data) {
@@ -271,6 +264,21 @@ function gameState()
                         }
                     });
                 }
+                else
+                {
+                    client.setID(3);
+                    client.writeCoil(drumTrigger, true, function(err, data) {
+                        if (data)
+                        {
+                            console.log(data.data);
+                        }
+                        else
+                        {
+                            console.log(err);
+                        }
+                    });
+                }
+                drumTrigger = 0;
             }
             else
             {
@@ -286,7 +294,7 @@ function gameState()
                             if (readState != 2)
                             {
                                 //  Gameover triggered!
-                                state == "DEBUG";
+                                state = "DEBUG";
                                 stateInitialised = false;
                                 waitingForReset = false;
                             }
@@ -319,7 +327,7 @@ function gameState()
         {
             // Checking for code to be initialised!
 
-            // SUCCESS => stateInitialised = true;
+            
             // SUCCESS => waitingForReset = false;
             console.log("Initialised!");
             stateInitialised = true;
@@ -329,6 +337,7 @@ function gameState()
         {
             // Initialising code!
             // SUCCESS => waitingForReset = true;
+            
             console.log("Initialising ...")
             waitingForReset = true;
         }
