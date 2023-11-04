@@ -6,7 +6,8 @@ import open from 'open';
 import modbusRTU from 'modbus-serial';
 
 const client = new modbusRTU;
-client.connectRTUBuffered('COM9', {baudRate: 115200, dataBits: 8, parity: 'even', stopBits: 1, flowcontrol: false});
+client.connectRTUBuffered('/dev/serial/by-id/usb-1a86_USB_Single_Serial_556F024543-if00', {baudRate: 115200, dataBits: 8, parity: 'even', stopBits: 1, flowcontrol: false});
+//client.connectRTUBuffered('COM9', {baudRate: 115200, dataBits: 8, parity: 'even', stopBits: 1, flowcontrol: false});
 
 const mimeType = {
     '.ico': 'image/x-icon',
@@ -34,9 +35,8 @@ var app = http.createServer(function(req, res) {
     // by limiting the path to current directory only
     const sanitizePath = path.normalize(parsedUrl.pathname).replace(/^(\.\.[\/\\])+/, '');
     const directory = '/html/' + sanitizePath;
-    //let pathname = path.join('/home/medusa/raspberry_pi_master_module/node/', directory);
-    let pathname = path.join('C:\\Users\\nwill\\Documents\\GitHub\\raspberry_pi_master_module\\node', directory);
-
+    let pathname = path.join('/home/medusa/raspberry_pi_master_module/node/', directory);
+    //let pathname = path.join('C:\\Users\\nwill\\Documents\\GitHub\\raspberry_pi_master_module\\node', directory);
 
     // extract URL path
     //let pathname = `.${parsedUrl.pathname}`;
@@ -81,17 +81,48 @@ const io = new Server(app);
 io.on('connection', (socket) => {
     socket.on('saxaphone', (arg) => {
         console.log("Saxaphones");
-        client.setID(2);
+        client.setID(3);
         client.writeCoil(arg, true, function(err, data) {
-            console.log(data);
+            if (data)
+            {
+                console.log(data);
+            }
+            else
+            {
+                console.log(err);
+            }
         });
     });
     socket.on('scissor', (arg) => {
         console.log("Scissor Lift");
         client.setID(4);
         client.writeRegister(0, Number(arg), function(err, data) {
-            console.log(data);
+            if (data)
+            {
+                console.log(data);
+            }
+            else{
+                console.log(err);
+            }
         });
+    });
+    socket.on('drumMode', (arg) => {
+        if (arg == 1)
+        {
+            console.log("Starting game!");
+            client.setID(5);
+            client.writeRegister(0, 2, function(err, data) {
+                if (data)
+                {
+                    console.log(data);
+                    state = "GAME";
+                }
+                else
+                {
+                    console.log(err);
+                }
+            });
+        }
     });
 });
 
@@ -103,6 +134,7 @@ const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 let state = "DEBUG";
 let stateInitialised = false;
 let waitingForReset = true;
+let score = 0;
 
 function changeState( new_state )
 {
@@ -157,13 +189,13 @@ let retries = 0;
 async function resendLastTriggeredDrum()
 {
     retries += 1;
-    //  Assume client.setID(6); ?
+    //  Assume client.setID(5); ?
     if (retries <= maxRetries)
     {
         client.readInputRegisters(1,1, function(err, data){
             if (data)
             {
-                return data.data;
+                return data.data[0];
             }
             if (err)
             {
@@ -182,12 +214,12 @@ async function resendLastTriggeredDrum()
 
 function getTriggeredDrum()
 {
-    client.setID(6);
+    client.setID(5);
     client.readInputRegisters(0, 1, function(err, data)
     {
         if (data)
         {
-            return data.data;
+            return data.data[0];
         }
         if (err)
         {
@@ -197,14 +229,77 @@ function getTriggeredDrum()
     })
 }
 
+let modeCount = 0;
+
 function gameState()
 {
     if (stateInitialised)
     {
         //  if !waitingforreset
-        //      If state = game
+        if (state == "GAME")
+        {
         //          Game code!
-        //          Ask Drums for hits! => Get triggerred drum ... on error retry x 3!
+            let drumTrigger = getTriggeredDrum();
+            if (drumTrigger != 0)   
+            {
+                score += 1;
+                if (score > 10 && drumTrigger != 5)
+                {
+                    client.setID(3);
+                    client.writeCoil(drumTrigger, true, function(err, data) {
+                        if (data)
+                        {
+                            console.log(data.data);
+                        }
+                        else
+                        {
+                            console.log(err);
+                        }
+                    });
+                }
+                else
+                {
+                    client.setID(1);
+                    client.writeCoil(drumTrigger, true, function(err, data) {
+                        if (data)
+                        {
+                            console.log(data.data);
+                        }
+                        else
+                        {
+                            console.log(err);
+                        }
+                    });
+                }
+            }
+            else
+            {
+                //  Drum not triggered should be a relatively quite time ...
+                modeCount += 1;
+                if (modeCount > 10)
+                {
+                    client.setID(5);
+                    client.readInputRegisters(2, 1, function(err, data) {
+                        if (data)
+                        {
+                            let readState = data.data[0];
+                            if (readState != 2)
+                            {
+                                //  Gameover triggered!
+                                state == "DEBUG";
+                                stateInitialised = false;
+                                waitingForReset = false;
+                            }
+                        }
+                        else
+                        {
+                            console.log(err);
+                        }
+                    });
+                    modeCount = 0;
+                }
+            }
+        }
         //          If score > 10 && not 5
         //              send to snake heads
         //          else
@@ -226,17 +321,20 @@ function gameState()
 
             // SUCCESS => stateInitialised = true;
             // SUCCESS => waitingForReset = false;
+            console.log("Initialised!");
+            stateInitialised = true;
+            waitingForReset = false;
         }
         else
         {
             // Initialising code!
             // SUCCESS => waitingForReset = true;
-
+            console.log("Initialising ...")
+            waitingForReset = true;
         }
     }
 
 };
-
 
 // process.kill(process.pid, "SIGINT"); <-- Send myself a termination signal!
 

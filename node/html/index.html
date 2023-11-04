@@ -189,6 +189,10 @@ dialog {
                         <div class="scissorStop feedback" data-id="1">Top</div>
                         <div class="scissorStop feedback" data-id="2">Emergency</div>
                     </div>
+                    Drum Interface (ID: 5)
+                    <div class="group">
+                        <div class="drumMode button">Start Game!</div>
+                    </div>
                 </label>
             <button id="closeDialog" autofocus>Close</button>
         </dialog>
@@ -226,6 +230,8 @@ const scissorButtons = [...document.getElementsByClassName("scissor")];
 const scissorStatus = document.getElementById("scissorStatus");
 const messageDisplay = document.getElementById("message")
 const scissorStops= [...document.getElementsByClassName("scissorStop")];
+const drumMode = [...document.getElementByClassName("druMode")];
+
 
 // "Show the dialog" button opens the dialog modally
 showButton.addEventListener("click", () => {
@@ -252,6 +258,11 @@ for (var i = 0; i < scissorButtons.length; i++) {
         socket.emit('scissor', id);
     });
 }
+
+drumMode[0].addEventListener("click", () => {
+    console.log("Start game!");
+    socket.emit('drumMode', 1);
+})
 
 // Todo: Implement feedback from scissorlift!
 
