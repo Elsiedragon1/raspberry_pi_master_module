@@ -117,7 +117,7 @@ io.on('connection', (socket) => {
                 if (data)
                 {
                     console.log(data);
-                    state = "GAME";
+                    changeState("GAME");
                 }
                 else
                 {
@@ -143,9 +143,9 @@ function changeState( new_state )
     state = new_state;
     stateInitialised = false;
     waitingForReset = false;
-}
+};
 
-setInterval(function()
+function update()
 {
     if (state == "DEBUG")
     {
@@ -155,34 +155,36 @@ setInterval(function()
     {
         gameState();
     }
-}, 1000/30);
 
-async function debugState() {
-    client.setID(4);
-    client.readHoldingRegisters(0,1,function(err, data) {
-        if (data)
-        {
-            //console.log(data.data);
-            io.emit('scissorStatus', data.data);
-        }
-    });
-    await sleep(10);    //  Wait for 50ms
-    client.readCoils(0, 3, function(err, data)
-    {
-        if (data)
-        {
-            //console.log(data.data);
-            //  readCoils always gives an 8 byte array ... why?
-            //  Only emit what we need!
-            let new_data = data.data.slice(0,3);
-            io.emit('scissorStop', new_data);
-        }
-        else
-        {
-            console.log("no data");
-        }
-        
-    });
+    setTimeout (update, 50);
+};
+
+function debugState() {
+    //client.setID(4);
+    //client.readHoldingRegisters(0,1,function(err, data) {
+    //    if (data)
+    //    {
+    //        //console.log(data.data);
+    //        io.emit('scissorStatus', data.data);
+    //    }
+    //});
+    //await sleep(50);    //  Wait for 50ms
+    //client.readCoils(0, 3, function(err, data)
+    //{
+    //    if (data)
+    //    {
+    //        //console.log(data.data);
+    //        //  readCoils always gives an 8 byte array ... why?
+    //       //  Only emit what we need!
+    //        let new_data = data.data.slice(0,3);
+    //        io.emit('scissorStop', new_data);
+    //    }
+    //    else
+    //    {
+    //        console.log("no data");
+    //    }
+    //});
+    ;
 };
 
 let maxRetries = 3;
@@ -193,7 +195,7 @@ let drumTrigger = 0;
 function resendLastTriggeredDrum()
 {
     retries += 1;
-    //  Assume client.setID(5); ?
+    client.setID(5);
     if (retries <= maxRetries)
     {
         client.readInputRegisters(1,1, function(err, data){
@@ -217,7 +219,7 @@ function resendLastTriggeredDrum()
     }
 }
 
-function getTriggeredDrum()
+function getTriggeredDrum( next )
 {
     client.setID(5);
     client.readInputRegisters(0, 1, function(err, data)
@@ -225,14 +227,17 @@ function getTriggeredDrum()
         if (data)
         {
             console.log(data);
-            drumTrigger = data.data[0];
+            //drumTrigger = data.data[0];
+            if (next)
+            {
+                next(null, { "data": data.data[0] });
+            }
         }
         if (err)
         {
-            // resend data!
-            resendLastTriggeredDrum();
+            console.log(err);
         }
-    })
+    });
 }
 
 let modeCount = 0;
@@ -241,93 +246,79 @@ function gameState()
 {
     if (stateInitialised)
     {
-        //  if !waitingforreset
-        if (state == "GAME")
-        {
         //          Game code!
-            getTriggeredDrum();
-            sleep(10);
-            if (drumTrigger != 0)   
-            {
-                score += 1;
-                if (score > 10 && drumTrigger != 5)
+        getTriggeredDrum()
+            .then(function(data){
+                if (data != 0)
                 {
-                    client.setID(1);
-                    client.writeCoil(drumTrigger, true, function(err, data) {
-                        if (data)
-                        {
-                            console.log(data.data);
-                        }
-                        else
-                        {
-                            console.log(err);
-                        }
-                    });
+                    score += 1;
+                    if (score > 10 && drumTrigger != 5)
+                    {
+                        client.setID(1);
+                        client.writeCoil(drumTrigger, true, function(err, data) {
+                            if (data)
+                            {
+                                console.log(data.data);
+                            }
+                            else
+                            {
+                                console.log(err);
+                            }
+                        });
+                    }
+                    else
+                    {
+                        client.setID(3);
+                        client.writeCoil(drumTrigger, true, function(err, data) {
+                            if (data)
+                            {
+                                console.log(data.data);
+                            }
+                            else
+                            {
+                                console.log(err);
+                            }
+                        });
+                    }
+                    drumTrigger = 0;
                 }
                 else
                 {
-                    client.setID(3);
-                    client.writeCoil(drumTrigger, true, function(err, data) {
-                        if (data)
-                        {
-                            console.log(data.data);
-                        }
-                        else
-                        {
-                            console.log(err);
-                        }
-                    });
-                }
-                drumTrigger = 0;
-            }
-            else
-            {
-                //  Drum not triggered should be a relatively quite time ...
-                modeCount += 1;
-                if (modeCount > 10)
-                {
-                    client.setID(5);
-                    client.readInputRegisters(2, 1, function(err, data) {
-                        if (data)
-                        {
-                            let readState = data.data[0];
-                            if (readState != 2)
+                    //  Drum not triggered should be a relatively quite time ...
+                    modeCount += 1;
+                    if (modeCount > 10)
+                    {
+                        client.setID(5);
+                        client.readInputRegisters(2, 1, function(err, data) {
+                            if (data)
                             {
-                                //  Gameover triggered!
-                                state = "DEBUG";
-                                stateInitialised = false;
-                                waitingForReset = false;
+                                let readState = data.data[0];
+                                if (readState != 2)
+                                {
+                                    //  Gameover triggered!
+                                    changeState("DEBUG");
+                                    stateInitialised = false;
+                                    waitingForReset = false;
+                                }
                             }
-                        }
-                        else
-                        {
-                            console.log(err);
-                        }
-                    });
-                    modeCount = 0;
+                            else
+                            {
+                                console.log(err);
+                            }
+                        });
+                        modeCount = 0;
+                    }
                 }
-            }
-        }
-        //          If score > 10 && not 5
-        //              send to snake heads
-        //          else
-        //              send to saxaphones
-        //          if (score > 10)
-        //              checkLiftStatus
-        //                  raiseLift
-        //          check for game over every second! (x number of refreshes!)
-        //      if gameover reset!
-        //          stateInitised = false;
-        //          waitingforReset = false;
-        // 
+            })
+            .catch(function(e){
+                console.log(e);
+            });
     }
     else
     {
         if (waitingForReset)
         {
             // Checking for code to be initialised!
-
-            
             // SUCCESS => waitingForReset = false;
             console.log("Initialised!");
             stateInitialised = true;
