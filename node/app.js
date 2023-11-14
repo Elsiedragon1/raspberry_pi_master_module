@@ -7,7 +7,6 @@ import modbusRTU from 'modbus-serial';
 
 const client = new modbusRTU;
 
-client.setTimeout(500);
 client.connectRTUBuffered('/dev/serial/by-id/usb-1a86_USB_Single_Serial_556F024543-if00', {baudRate: 115200, dataBits: 8, parity: 'even', stopBits: 1, flowcontrol: false});
 //client.connectRTUBuffered('COM9', {baudRate: 115200, dataBits: 8, parity: 'even', stopBits: 1, flowcontrol: false});
 
@@ -112,18 +111,7 @@ io.on('connection', (socket) => {
         if (arg == 1)
         {
             console.log("Starting game!");
-            client.setID(5);
-            client.writeRegister(0, 2, function(err, data) {
-                if (data)
-                {
-                    console.log(data);
-                    changeState("GAME");
-                }
-                else
-                {
-                    console.log(err);
-                }
-            });
+            changeState("GAME");
         }
     });
 });
@@ -136,7 +124,10 @@ const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 let state = "DEBUG";
 let stateInitialised = false;
 let waitingForReset = false;
+
+let lastScore = 0;
 let score = 0;
+let highScore = 0;
 
 function changeState( new_state )
 {
@@ -154,9 +145,18 @@ function update()
     else if (state == "GAME")
     {
         gameState();
+        if (score != lastScore)
+        {
+            io.emit('score',score);
+            lastScore=score;
+            if(score<highScore)
+            {
+                highScore = score;
+            }
+        }
     }
 
-    setTimeout (update, 50);
+    setTimeout(update, 30);
 };
 
 function debugState() {
@@ -190,15 +190,13 @@ function debugState() {
 let maxRetries = 3;
 let retries = 0;
 
-let drumTrigger = 0;
-
-function resendLastTriggeredDrum()
+async function resendLastTriggeredDrum()
 {
     retries += 1;
     client.setID(5);
     if (retries <= maxRetries)
     {
-        client.readInputRegisters(1,1, function(err, data){
+        await client.readInputRegisters(1,1, function(err, data){
             if (data)
             {
                 drumTrigger = data.data[0];
@@ -219,19 +217,17 @@ function resendLastTriggeredDrum()
     }
 }
 
-function getTriggeredDrum( next )
+let triggerId = 0;
+
+async function getTriggeredDrum()
 {
     client.setID(5);
-    client.readInputRegisters(0, 1, function(err, data)
+    await client.readInputRegisters(0, 1, function(err, data)
     {
         if (data)
         {
-            console.log(data);
-            //drumTrigger = data.data[0];
-            if (next)
-            {
-                next(null, { "data": data.data[0] });
-            }
+            //console.log(data);
+            triggerId = data.data[0];
         }
         if (err)
         {
@@ -242,87 +238,93 @@ function getTriggeredDrum( next )
 
 let modeCount = 0;
 
-function gameState()
+async function gameState()
 {
-    if (stateInitialised)
+    if (stateInitialised == true)
     {
         //          Game code!
-        getTriggeredDrum()
-            .then(function(data){
-                if (data != 0)
+            await getTriggeredDrum();
+            if (triggerId != 0)
+            {
+                console.log(triggerId);
+                score += 1;
+                if (score > 10 && triggerId != 5)
                 {
-                    score += 1;
-                    if (score > 10 && drumTrigger != 5)
-                    {
-                        client.setID(1);
-                        client.writeCoil(drumTrigger, true, function(err, data) {
-                            if (data)
-                            {
-                                console.log(data.data);
-                            }
-                            else
-                            {
-                                console.log(err);
-                            }
-                        });
-                    }
-                    else
-                    {
-                        client.setID(3);
-                        client.writeCoil(drumTrigger, true, function(err, data) {
-                            if (data)
-                            {
-                                console.log(data.data);
-                            }
-                            else
-                            {
-                                console.log(err);
-                            }
-                        });
-                    }
-                    drumTrigger = 0;
+                    client.setID(1);
+                    await client.writeCoil(triggerId, true, function(err, data) {
+                        if (data)
+                        {
+                            //console.log(data.data);
+                        }
+                        else
+                        {
+                            console.log(err);
+                        }
+                    });
                 }
                 else
                 {
-                    //  Drum not triggered should be a relatively quite time ...
-                    modeCount += 1;
-                    if (modeCount > 10)
-                    {
-                        client.setID(5);
-                        client.readInputRegisters(2, 1, function(err, data) {
-                            if (data)
-                            {
-                                let readState = data.data[0];
-                                if (readState != 2)
-                                {
-                                    //  Gameover triggered!
-                                    changeState("DEBUG");
-                                    stateInitialised = false;
-                                    waitingForReset = false;
-                                }
-                            }
-                            else
-                            {
-                                console.log(err);
-                            }
-                        });
-                        modeCount = 0;
-                    }
+                    client.setID(3);
+                    await client.writeCoil(triggerId, true, function(err, data) {
+                        if (data)
+                        {
+                            //console.log(data.data);
+                        }
+                        else
+                        {
+                            console.log(err);
+                        }
+                    });
                 }
-            })
-            .catch(function(e){
-                console.log(e);
-            });
+                triggerId = 0;
+            }
+            else
+            {
+                //  Drum not triggered should be a relatively quite time ...
+                modeCount += 1;
+                if (modeCount > 10)
+                {
+                    client.setID(5);
+                    await client.readInputRegisters(2, 1, function(err, data) {
+                        if (data)
+                        {
+                            let readState = data.data[0];
+                            if (readState != 2)
+                            {
+                                //  Gameover triggered!
+                                changeState("DEBUG");
+                            }
+                        }
+                        else
+                        {
+                            console.log(err);
+                        }
+                    });
+                    modeCount = 0;
+                }
+            };
     }
     else
     {
-        if (waitingForReset)
+        if (waitingForReset == true)
         {
             // Checking for code to be initialised!
             // SUCCESS => waitingForReset = false;
             console.log("Initialised!");
             stateInitialised = true;
             waitingForReset = false;
+            // Start Game!
+            client.setID(5);
+            await client.writeRegister(0, 2, function(err, data) {
+                if (data)
+                {
+                    console.log(data);
+                }
+                else
+                {
+                    console.log(err);
+                }
+            });
         }
         else
         {
@@ -331,9 +333,11 @@ function gameState()
             
             console.log("Initialising ...")
             waitingForReset = true;
+            score = 0;
+            lastScore =0;
+            io.emit('score', score);
         }
     }
-
 };
 
 // process.kill(process.pid, "SIGINT"); <-- Send myself a termination signal!
@@ -346,3 +350,5 @@ process.on('SIGTERM', () => {
         process.exit(0);
     });
 });
+
+update();

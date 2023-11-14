@@ -131,6 +131,21 @@ int16_t get_mode()
     }
 }
 
+bool set_mode(uint16_t mode)
+{
+    // IDLE = 0,
+    // BUSK = 1,
+    // GAME = 2,
+    // FAIL = 3
+    uint8_t result = node.writeSingleRegister(0,mode,1);
+    if (result == 0)
+    {
+        return node.getResponseBuffer(0x00);
+    } else {
+        return -1;
+    }
+}
+
 int16_t get_score()
 {
     uint8_t result = node.readInputRegisters(3,1,1);
@@ -141,6 +156,35 @@ int16_t get_score()
     } else {
         return -1;
     }
+}
+
+int16_t get_scissor_status()
+{
+    uint8_t result = node.readHoldingRegisters(0,1,4);
+
+    if (result == 0)
+    {
+        return node.getRespomseBuffer(0x00);
+    } else {
+        return -1;
+    }
+}
+
+bool set_scissor_status(uint8_t status)
+{
+    //  0 -> lower
+    //  2 -> risen
+    //  4 -> stop
+
+    uint8_t result = node.writeSingleRegister(0, status, 4);
+
+    if (result == 0)
+    {
+        return true;
+    } else {
+        return false;
+    }
+    
 }
 
 uint32_t current_tick;
@@ -166,11 +210,10 @@ void loop()
                 //  If the triggered drum is 5, this will be handled by the saxophone flamethrowers
                 if (score > snakeTransition && answer != 5)
                 {
-                    //node.writeSingleCoil(answer,1,2);
                     node.writeSingleCoil(answer,1,3);
                     
-                    // Comment line 169, and uncomment line 170 to swap from the saxophones to the snake head after 10 successes
                 } else {
+
                     node.writeSingleCoil(answer,1,2);
                 }
 

@@ -223,23 +223,9 @@ drumMode[0].addEventListener("click", () => {
 
 let state = STATE.IDLE;
 
-socket.on('data', function(data) {
+socket.on('score', function(data) {
     console.log(data);
-    if (data[0] == 'S') {
-        // A Score message has been recieved!
-        messageDisplay.innerHTML = data.substring(1);
-    } else {
-        switch (data) {
-            case "IDLE":
-                break;
-            case "BUSK":
-                break;
-            case "GAME":
-                break;
-            default:
-                break;
-        }
-    }
+        messageDisplay.innerHTML = data;
 });
 
 socket.on('scissorStatus', function(data) {
