@@ -5,10 +5,24 @@ import path from 'path';
 import open from 'open';
 import modbusRTU from 'modbus-serial';
 
-const client = new modbusRTU;
-
-client.connectRTUBuffered('/dev/serial/by-id/usb-1a86_USB_Single_Serial_556F024543-if00', {baudRate: 115200, dataBits: 8, parity: 'even', stopBits: 1, flowcontrol: false});
-//client.connectRTUBuffered('COM9', {baudRate: 115200, dataBits: 8, parity: 'even', stopBits: 1, flowcontrol: false});
+const rpiPort = {
+    port: '/dev/serial/by-id/usb-1a86_USB_Single_Serial_556F024543-if00',
+    baudRate: 115200,
+    unitID: 6,
+    dataBits: 8,
+    parity: 'even',
+    stopBits: 1,
+    flowcontrol: false
+};
+const windowsPort = {
+    port: 'COM10',
+    baudRate: 115200,
+    unitID: 6,
+    dataBits: 8,
+    parity: 'even',
+    stopBits: 1,
+    flowcontrol: false
+};
 
 const mimeType = {
     '.ico': 'image/x-icon',
@@ -82,37 +96,12 @@ const io = new Server(app);
 io.on('connection', (socket) => {
     socket.on('saxaphone', (arg) => {
         console.log("Saxaphones");
-        client.setID(3);
-        client.writeCoil(arg, true, function(err, data) {
-            if (data)
-            {
-                console.log(data);
-            }
-            else
-            {
-                console.log(err);
-            }
-        });
     });
     socket.on('scissor', (arg) => {
         console.log("Scissor Lift");
-        client.setID(4);
-        client.writeRegister(0, Number(arg), function(err, data) {
-            if (data)
-            {
-                console.log(data);
-            }
-            else{
-                console.log(err);
-            }
-        });
     });
     socket.on('drumMode', (arg) => {
-        if (arg == 1)
-        {
-            console.log("Starting game!");
-            changeState("GAME");
-        }
+
     });
 });
 
@@ -122,223 +111,9 @@ open('http://localhost:8000', {app: {name: 'chromium-browser', arguments: ['--st
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 let state = "DEBUG";
-let stateInitialised = false;
-let waitingForReset = false;
 
 let lastScore = 0;
-let score = 0;
 let highScore = 0;
-
-function changeState( new_state )
-{
-    state = new_state;
-    stateInitialised = false;
-    waitingForReset = false;
-};
-
-function update()
-{
-    if (state == "DEBUG")
-    {
-        debugState();
-    }
-    else if (state == "GAME")
-    {
-        gameState();
-        if (score != lastScore)
-        {
-            io.emit('score',score);
-            lastScore=score;
-            if(score<highScore)
-            {
-                highScore = score;
-            }
-        }
-    }
-
-    setTimeout(update, 30);
-};
-
-function debugState() {
-    //client.setID(4);
-    //client.readHoldingRegisters(0,1,function(err, data) {
-    //    if (data)
-    //    {
-    //        //console.log(data.data);
-    //        io.emit('scissorStatus', data.data);
-    //    }
-    //});
-    //await sleep(50);    //  Wait for 50ms
-    //client.readCoils(0, 3, function(err, data)
-    //{
-    //    if (data)
-    //    {
-    //        //console.log(data.data);
-    //        //  readCoils always gives an 8 byte array ... why?
-    //       //  Only emit what we need!
-    //        let new_data = data.data.slice(0,3);
-    //        io.emit('scissorStop', new_data);
-    //    }
-    //    else
-    //    {
-    //        console.log("no data");
-    //    }
-    //});
-    ;
-};
-
-let maxRetries = 3;
-let retries = 0;
-
-async function resendLastTriggeredDrum()
-{
-    retries += 1;
-    client.setID(5);
-    if (retries <= maxRetries)
-    {
-        await client.readInputRegisters(1,1, function(err, data){
-            if (data)
-            {
-                drumTrigger = data.data[0];
-            }
-            if (err)
-            {
-                resendLastTriggeredDrum();
-                //wait?
-            }
-        });
-    }
-    else
-    {
-        //  Retry failure! Move on!
-        drumTrigger = 0;
-        retries = 0;
-        return 0;
-    }
-}
-
-let triggerId = 0;
-
-async function getTriggeredDrum()
-{
-    client.setID(5);
-    await client.readInputRegisters(0, 1, function(err, data)
-    {
-        if (data)
-        {
-            //console.log(data);
-            triggerId = data.data[0];
-        }
-        if (err)
-        {
-            console.log(err);
-        }
-    });
-}
-
-let modeCount = 0;
-
-async function gameState()
-{
-    if (stateInitialised == true)
-    {
-        //          Game code!
-            await getTriggeredDrum();
-            if (triggerId != 0)
-            {
-                console.log(triggerId);
-                score += 1;
-                if (score > 10 && triggerId != 5)
-                {
-                    client.setID(1);
-                    await client.writeCoil(triggerId, true, function(err, data) {
-                        if (data)
-                        {
-                            //console.log(data.data);
-                        }
-                        else
-                        {
-                            console.log(err);
-                        }
-                    });
-                }
-                else
-                {
-                    client.setID(3);
-                    await client.writeCoil(triggerId, true, function(err, data) {
-                        if (data)
-                        {
-                            //console.log(data.data);
-                        }
-                        else
-                        {
-                            console.log(err);
-                        }
-                    });
-                }
-                triggerId = 0;
-            }
-            else
-            {
-                //  Drum not triggered should be a relatively quite time ...
-                modeCount += 1;
-                if (modeCount > 10)
-                {
-                    client.setID(5);
-                    await client.readInputRegisters(2, 1, function(err, data) {
-                        if (data)
-                        {
-                            let readState = data.data[0];
-                            if (readState != 2)
-                            {
-                                //  Gameover triggered!
-                                changeState("DEBUG");
-                            }
-                        }
-                        else
-                        {
-                            console.log(err);
-                        }
-                    });
-                    modeCount = 0;
-                }
-            };
-    }
-    else
-    {
-        if (waitingForReset == true)
-        {
-            // Checking for code to be initialised!
-            // SUCCESS => waitingForReset = false;
-            console.log("Initialised!");
-            stateInitialised = true;
-            waitingForReset = false;
-            // Start Game!
-            client.setID(5);
-            await client.writeRegister(0, 2, function(err, data) {
-                if (data)
-                {
-                    console.log(data);
-                }
-                else
-                {
-                    console.log(err);
-                }
-            });
-        }
-        else
-        {
-            // Initialising code!
-            // SUCCESS => waitingForReset = true;
-            
-            console.log("Initialising ...")
-            waitingForReset = true;
-            score = 0;
-            lastScore =0;
-            io.emit('score', score);
-        }
-    }
-};
 
 // process.kill(process.pid, "SIGINT"); <-- Send myself a termination signal!
 
@@ -350,5 +125,48 @@ process.on('SIGTERM', () => {
         process.exit(0);
     });
 });
+
+const holdingRegisters = { [0]: 0, [1]: 0 };
+//const coils = {};
+//const inputRegisters = {};
+//const discreteInputs = {};
+
+const SCORE_REGISTER = 0;
+const MODE_REGISTER = 1;
+
+const vector = {
+    setRegister: function(addr, value) {
+        holdingRegisters[addr] = value;
+        console.log(value);
+        return;
+    }
+};
+
+const serverSerial = new modbusRTU.ServerSerial( vector, rpiPort );
+
+serverSerial.on("error", function(err) {
+    console.log(err);
+});
+
+serverSerial.on("initialized", function() {
+    console.log("Initialised!");
+});
+
+serverSerial.on("socketError", function(err) {
+    console.log(err);
+    serverSerial.close(closed);
+});
+
+function closed() {
+    console.log("Server Shutdown");
+    process.kill(process.pid, "SIGINT");
+}
+
+function update()
+{
+    io.emit('score', holdingRegisters[0]);
+
+    setTimeout(update, 100);
+}
 
 update();
