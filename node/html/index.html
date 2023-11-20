@@ -191,11 +191,13 @@ const drumMode = [...document.getElementsByClassName("drumMode")];
 // "Show the dialog" button opens the dialog modally
 showButton.addEventListener("click", () => {
   dialog.showModal();
+  socket.emit('debugMode');
 });
 
 // "Close" button closes the dialog
 closeButton.addEventListener("click", () => {
   dialog.close();
+  socket.emit('gameMode');
 });
 
 for (var i = 0; i < saxButtons.length; i++) {

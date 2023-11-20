@@ -5,6 +5,7 @@ import path from 'path';
 import open from 'open';
 import modbusRTU from 'modbus-serial';
 
+//  Serial Ports
 const rpiPort = {
     port: '/dev/serial/by-id/usb-1a86_USB_Single_Serial_556F024543-if00',
     baudRate: 115200,
@@ -94,14 +95,44 @@ import { Server } from "socket.io";
 const io = new Server(app);
 
 io.on('connection', (socket) => {
+    socket.on('debugMode', () => {
+        serverSerial.close(clientConnect);
+        console.log("Switching to debug ...");
+        state = 'DEBUG';
+    });
+    socket.on('gameMode', () => {
+        
+        client.close(serverConnect);
+        console.log("Switching to game ...");
+        state = 'GAME';
+    });
     socket.on('saxaphone', (arg) => {
         console.log("Saxaphones");
+        client.setID(3);
+        client.writeCoil(arg, true, function(err, data) {
+            if (data)
+            {
+                console.log(data);
+            }
+            else
+            {
+                console.log(err);
+            }
+        });
     });
     socket.on('scissor', (arg) => {
         console.log("Scissor Lift");
-    });
-    socket.on('drumMode', (arg) => {
-
+        client.setID(4);
+        client.writeRegister(0, Number(arg), function(err, data) {
+            if (data)
+            {
+                console.log(data);
+            }
+            else
+            {
+                console.log(err);
+            }
+        });
     });
 });
 
@@ -110,7 +141,9 @@ open('http://localhost:8000', {app: {name: 'chromium-browser', arguments: ['--st
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-let state = "DEBUG";
+let state = "GAME";
+
+let mode = "IDLE";
 
 let lastScore = 0;
 let highScore = 0;
@@ -126,6 +159,17 @@ process.on('SIGTERM', () => {
     });
 });
 
+//  MODBUS Controller Configuration
+let client = new modbusRTU;
+
+function clientConnect()
+{
+    client = new modbusRTU;
+    //client.connectRTUBuffered('COM10', { baudRate: 115200, unitID: 6, dataBits: 8, parity: 'even', stopBits: 1, flowcontrol: false });
+    client.connectRTUBuffered('/dev/serial/by-id/usb-1a86_USB_Single_Serial_556F024543-if00', { baudRate: 115200, unitID: 6, dataBits: 8, parity: 'even', stopBits: 1, flowcontrol: false });
+}
+
+//  MODBUS Node Configuration
 const holdingRegisters = { [0]: 0, [1]: 0 };
 //const coils = {};
 //const inputRegisters = {};
@@ -142,7 +186,7 @@ const vector = {
     }
 };
 
-const serverSerial = new modbusRTU.ServerSerial( vector, rpiPort );
+let serverSerial = new modbusRTU.ServerSerial( vector, rpiPort );
 
 serverSerial.on("error", function(err) {
     console.log(err);
@@ -154,12 +198,16 @@ serverSerial.on("initialized", function() {
 
 serverSerial.on("socketError", function(err) {
     console.log(err);
-    serverSerial.close(closed);
+    serverSerial.close(serverClose);
 });
 
-function closed() {
-    console.log("Server Shutdown");
-    process.kill(process.pid, "SIGINT");
+function serverConnect() {
+    serverSerial = new modbusRTU.ServerSerial( vector, rpiPort );
+}
+
+function serverClose() {
+    console.log("Modbus Server Shutdown");
+    //process.kill(process.pid, "SIGINT");
 }
 
 function update()
