@@ -125,30 +125,49 @@ dialog {
     </head>
     <body>
         <dialog>
-                Saxaphones (ID: 3)
-                <div class="group">
-                    <div class="saxFlame button" data-id="1">Fire 1</div>
-                    <div class="saxFlame button" data-id="2">Fire 2</div>
-                    <div class="saxFlame button" data-id="3">Fire 3</div>
-                    <div class="saxFlame button" data-id="4">Fire 4</div>
-                    <div class="saxFlame button" data-id="5">Fire 5</div>
-                </div>
-                Scissor Lift (ID: 4)
-                <div class="group">
-                    <div class="scissor button" data-id="2">Raise</div>
-                    <div class="scissor button" data-id="4">STOP!</div>
-                    <div class="scissor button" data-id="0">Lower</div>
-                    <div id="scissorStatus" class="feedbackBlock">UNKNOWN</div>
-                </div>
-                <div class="group">
-                    <div class="scissorStop feedback" data-id="0">Bottom</div>
-                    <div class="scissorStop feedback" data-id="1">Top</div>
-                    <div class="scissorStop feedback" data-id="2">Emergency</div>
-                </div>
-                Drum Interface (ID: 5)
-                <div class="group">
-                    <div class="drumMode button">Start Game!</div>
-                </div>
+            Snake Heads (ID: 1)
+            <div class="group">
+                <div class="snakeFlames button" data-id="1">Fire 1</div>
+                <div class="snakeFlames button" data-id="2">Fire 2</div>
+                <div class="snakeFlames button" data-id="3">Fire 3</div>
+                <div class="snakeFlames button" data-id="4">Fire 4</div>
+            </div>
+            <div class="group">
+                <div class="snakeMouths button" data-id="0">Animate</div>
+                <div class="snakeMouths button" data-id="1">Open Mouths</div>
+                <div class="snakeMouths button" data-id="2">Close Mouths</div>
+                <div class="snakeMouths button" data-id="3">Tongues Out</div>
+            </div>
+            <div class="group">
+                <div class="snakeEyes button" data-id="0">Animate</div>
+                <div class="snakeEyes button" data-id="1">On</div>
+                <div class="snakeEyes button" data-id="2">Off</div>
+            </div>
+            Saxaphones (ID: 3)
+            <div class="group">
+                <div class="saxFlame button" data-id="1">Fire 1</div>
+                <div class="saxFlame button" data-id="2">Fire 2</div>
+                <div class="saxFlame button" data-id="3">Fire 3</div>
+                <div class="saxFlame button" data-id="4">Fire 4</div>
+                <div class="saxFlame button" data-id="5">Fire 5</div>
+            </div>
+            Scissor Lift (ID: 4)
+            <div class="group">
+                <div class="scissor button" data-id="2">Raise</div>
+                <div class="scissor button" data-id="4">STOP!</div>
+                <div class="scissor button" data-id="0">Lower</div>
+                <div id="scissorStatus" class="feedbackBlock">UNKNOWN</div>
+            </div>
+            <div class="group">
+                <div class="scissorStop feedback" data-id="0">Bottom</div>
+                <div class="scissorStop feedback" data-id="1">Top</div>
+                <div class="scissorStop feedback" data-id="2">Emergency</div>
+            </div>
+            Drum Interface (ID: 5)
+            <div class="group">
+                <div class="drumMode button">Start Game!</div>
+            </div>
+            <button id="resetButton">Reset</button>
             <button id="closeDialog" autofocus>Close</button>
         </dialog>
         <button id="showDialog">Show the dialog</button>
@@ -180,12 +199,20 @@ const STATE = {
 const dialog = document.querySelector("dialog");
 const showButton = document.getElementById("showDialog");
 const closeButton = document.getElementById("closeDialog");
+const resetButton = document.getElementById("resetButton");
+
 const saxButtons = [...document.getElementsByClassName("saxFlame")];
+
 const scissorButtons = [...document.getElementsByClassName("scissor")];
 const scissorStatus = document.getElementById("scissorStatus");
 const messageDisplay = document.getElementById("message")
 const scissorStops= [...document.getElementsByClassName("scissorStop")];
+
 const drumMode = [...document.getElementsByClassName("drumMode")];
+
+const snakeFlames = [...document.getElementsByClassName("snakeFlames")];
+const snakeMouths = [...document.getElementsByClassName("snakeMouths")];
+const snakeEyes = [...document.getElementsByClassName("snakeEyes")];
 
 
 // "Show the dialog" button opens the dialog modally
@@ -199,6 +226,35 @@ closeButton.addEventListener("click", () => {
   dialog.close();
   socket.emit('gameMode');
 });
+
+// "Reset" button
+resetButton.addEventListener("click", () => {
+  socket.emit('reset');
+});
+
+for (var i = 0; i < snakeFlames.length; i++) {
+    let id = snakeFlames[i].dataset.id;
+    snakeFlames[i].addEventListener("click", () => {
+        console.log("Fire Snake Flame " + id);
+        socket.emit('snakeFlame', id);
+    });
+}
+
+for (var i = 0; i < snakeMouths.length; i++) {
+    let id = snakeMouths[i].dataset.id;
+    snakeMouths[i].addEventListener("click", () => {
+        console.log("Set snake mouths " + id);
+        socket.emit('snakeMouth', id);
+    });
+}
+
+for (var i = 0; i < snakeEyes.length; i++) {
+    let id = snakeEyes[i].dataset.id;
+    snakeEyes[i].addEventListener("click", () => {
+        console.log("Set snake eyes " + id);
+        socket.emit('snakeEye', id);
+    });
+}
 
 for (var i = 0; i < saxButtons.length; i++) {
     let id = saxButtons[i].dataset.id;

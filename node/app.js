@@ -101,13 +101,56 @@ io.on('connection', (socket) => {
         state = 'DEBUG';
     });
     socket.on('gameMode', () => {
-        
         client.close(serverConnect);
         console.log("Switching to game ...");
         state = 'GAME';
     });
+    socket.on('reset', () => {
+        client.setID(1);
+        client.writeRegisters(1, [0, 0]);
+    });
+    socket.on('snakeFlame', (arg) => {
+        client.setID(1);
+        client.writeCoil(arg, true, function(err, data) {
+            if (data)
+            {
+                console.log(data);
+            }
+            else
+            {
+                console.log(err);
+            }
+        });
+    });
+    socket.on('snakeEye', (arg) => {
+        client.setID(1);
+        //  Register 1
+        client.writeRegister(1, arg, function(err, data) {
+            if (data)
+            {
+                console.log(data);
+            }
+            else
+            {
+                console.log(err);
+            }
+        });
+    });
+    socket.on('snakeMouth', (arg) => {
+        client.setID(1);
+        //  Register 2
+        client.writeRegister(2, arg, function(err, data) {
+            if (data)
+            {
+                console.log(data);
+            }
+            else
+            {
+                console.log(err);
+            }
+        });
+    });
     socket.on('saxaphone', (arg) => {
-        console.log("Saxaphones");
         client.setID(3);
         client.writeCoil(arg, true, function(err, data) {
             if (data)
@@ -153,7 +196,7 @@ let highScore = 0;
 process.on('SIGTERM', () => {
     console.info('SIGTERM signal received.');
     console.log('Closing http server.');
-    server.close(() => {
+    Server.close(() => {
         console.log('Http server closed.');
         process.exit(0);
     });
@@ -187,6 +230,7 @@ const vector = {
 };
 
 let serverSerial = new modbusRTU.ServerSerial( vector, rpiPort );
+//let serverSerial = new modbusRTU.ServerSerial( vector, windowsPort );
 
 serverSerial.on("error", function(err) {
     console.log(err);
@@ -203,6 +247,7 @@ serverSerial.on("socketError", function(err) {
 
 function serverConnect() {
     serverSerial = new modbusRTU.ServerSerial( vector, rpiPort );
+    //serverSerial = new modbusRTU.ServerSerial( vector, windowsPort );
 }
 
 function serverClose() {
