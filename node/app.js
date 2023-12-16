@@ -259,7 +259,7 @@ function update()
 {
     io.emit('score', holdingRegisters[0]);
 
-    setTimeout(update, 100);
+    setTimeout(update, 200);
 }
 
 update();

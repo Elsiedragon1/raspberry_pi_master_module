@@ -163,10 +163,6 @@ dialog {
                 <div class="scissorStop feedback" data-id="1">Top</div>
                 <div class="scissorStop feedback" data-id="2">Emergency</div>
             </div>
-            Drum Interface (ID: 5)
-            <div class="group">
-                <div class="drumMode button">Start Game!</div>
-            </div>
             <button id="resetButton">Reset</button>
             <button id="closeDialog" autofocus>Close</button>
         </dialog>
@@ -272,18 +268,17 @@ for (var i = 0; i < scissorButtons.length; i++) {
     });
 }
 
-drumMode[0].addEventListener("click", () => {
-    console.log("Start game!");
-    socket.emit('drumMode', 1);
-})
-
-// Todo: Implement feedback from scissorlift!
-
 let state = STATE.IDLE;
 
+let lastscore = 0;
+
 socket.on('score', function(data) {
-    console.log(data);
+    if (data != lastscore)
+    {
+        console.log(data);
         messageDisplay.innerHTML = data;
+        lastscore = data;
+    }
 });
 
 socket.on('scissorStatus', function(data) {
