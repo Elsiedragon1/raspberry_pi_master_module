@@ -61,6 +61,12 @@ body {
     height: 45px;
     margin: 2px;
 }
+#highscore {
+    font-size: 128px;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
 #marquee {
     background: red;
     position: absolute;
@@ -170,15 +176,16 @@ dialog {
         <div id="score">
         </div>
         <div id="highscore">
+            138
         </div>
-        <div id="marquee">
+<!--    <div id="marquee">
             <div>
                 <span>MODE</span>
                 <span>MODE</span>
                 <span>MODE</span>
                 <span>MODE!</span>
             </div>
-        </div>
+        </div>-->
         <div id="message">
             9013
         </div>
@@ -201,7 +208,8 @@ const saxButtons = [...document.getElementsByClassName("saxFlame")];
 
 const scissorButtons = [...document.getElementsByClassName("scissor")];
 const scissorStatus = document.getElementById("scissorStatus");
-const messageDisplay = document.getElementById("message")
+const messageDisplay = document.getElementById("message");
+const highscoreDisplay = document.getElementById("highscore");
 const scissorStops= [...document.getElementsByClassName("scissorStop")];
 
 const drumMode = [...document.getElementsByClassName("drumMode")];
@@ -270,14 +278,31 @@ for (var i = 0; i < scissorButtons.length; i++) {
 
 let state = STATE.IDLE;
 
-let lastscore = 0;
+let highscore = 0;
+let score = 0;
+
+if (localStorage.getItem("highscore"))
+{
+    highscore = localStorage.getItem("highscore");
+}
+else
+{
+    localStorage.setItem("highscore", 0);
+}
 
 socket.on('score', function(data) {
-    if (data != lastscore)
+    if (data != score)
     {
         console.log(data);
-        messageDisplay.innerHTML = data;
-        lastscore = data;
+        score = data;
+        messageDisplay.innerHTML = score;
+
+        if (score > highscore)
+        {
+            highscore = score;
+            highscoreDisplay.innerHTML = highscore;
+            localStorage.setItem("highscore", highscore);
+        }
     }
 });
 
