@@ -8,6 +8,7 @@ import modbusRTU from 'modbus-serial';
 //  Serial Ports
 const rpiPort = {
     port: '/dev/serial/by-id/usb-1a86_USB_Single_Serial_556F024543-if00',
+    //port: '/dev/serial/by-id/usb-1a86_USB_Single_Serial_5659012619-if00',
     baudRate: 115200,
     unitID: 6,
     dataBits: 8,
@@ -177,6 +178,23 @@ io.on('connection', (socket) => {
             }
         });
     });
+    socket.on('snakeBody', (arg) => {
+        console.log("Snake Body");
+        client.setID(2);
+        client.writeRegister(0, Number(arg), function(err, data) {
+            if (data)
+            {
+                console.log(data);
+            }
+            else
+            {
+                console.log(err);
+            }
+        });
+    });
+    socket.on('disconnect', () => {
+        // Housekeeping can be done here after browser is closed/disconnected
+    });
 });
 
 app.listen(8000);
@@ -184,9 +202,16 @@ open('http://localhost:8000', {app: {name: 'chromium-browser', arguments: ['--st
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
+//  This keeps track of if the RPi is acting as client or server!
 let state = "GAME";
 
+//  This keeps track of the game mode!
 let mode = "IDLE";
+//  Possible states:
+//  IDLE            -   Attract?                0
+//  TUTORIAL        -   Instructions            1
+//  GAMEMODE        -   Score display?          2
+//  RESET           -   Message to wait ...     3
 
 let lastScore = 0;
 let highScore = 0;
@@ -224,7 +249,7 @@ const MODE_REGISTER = 1;
 const vector = {
     setRegister: function(addr, value) {
         holdingRegisters[addr] = value;
-        console.log(value);
+        console.log(addr + ":" + value);
         return;
     }
 };

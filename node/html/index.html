@@ -64,7 +64,7 @@ body {
 #highscore {
     font-size: 128px;
     position: absolute;
-    top: 0px;
+    bottom: 0px;
     left: 0px;
 }
 #marquee {
@@ -145,9 +145,15 @@ dialog {
                 <div class="snakeMouths button" data-id="3">Tongues Out</div>
             </div>
             <div class="group">
-                <div class="snakeEyes button" data-id="0">Animate</div>
-                <div class="snakeEyes button" data-id="1">On</div>
-                <div class="snakeEyes button" data-id="2">Off</div>
+                <div class="snakeEyes button" data-id="0">Animate Eyes</div>
+                <div class="snakeEyes button" data-id="1">Eyes On</div>
+                <div class="snakeEyes button" data-id="2">Eyes Off</div>
+            </div>
+            Snake Bodies (ID: 2)
+            <div class="group">
+                <div class="snakeBody button" data-id="0">Home</div>
+                <div class="snakeBody button" data-id="1">Dance</div>
+                <div class="snakeBody button" data-id="2">Straighten Up!</div>
             </div>
             Saxaphones (ID: 3)
             <div class="group">
@@ -162,13 +168,15 @@ dialog {
                 <div class="scissor button" data-id="2">Raise</div>
                 <div class="scissor button" data-id="4">STOP!</div>
                 <div class="scissor button" data-id="0">Lower</div>
-                <div id="scissorStatus" class="feedbackBlock">UNKNOWN</div>
+                <!--<div id="scissorStatus" class="feedbackBlock">UNKNOWN</div>-->
             </div>
+            <!--
             <div class="group">
                 <div class="scissorStop feedback" data-id="0">Bottom</div>
                 <div class="scissorStop feedback" data-id="1">Top</div>
                 <div class="scissorStop feedback" data-id="2">Emergency</div>
             </div>
+            -->
             <button id="resetButton">Reset</button>
             <button id="closeDialog" autofocus>Close</button>
         </dialog>
@@ -217,6 +225,8 @@ const drumMode = [...document.getElementsByClassName("drumMode")];
 const snakeFlames = [...document.getElementsByClassName("snakeFlames")];
 const snakeMouths = [...document.getElementsByClassName("snakeMouths")];
 const snakeEyes = [...document.getElementsByClassName("snakeEyes")];
+
+const snakeBodies = [...document.getElementsByClassName("snakeBody")];
 
 
 // "Show the dialog" button opens the dialog modally
@@ -273,6 +283,14 @@ for (var i = 0; i < scissorButtons.length; i++) {
     scissorButtons[i].addEventListener("click", () => {
         console.log("Scissor Mode " + id);
         socket.emit('scissor', id);
+    });
+}
+
+for (var i = 0; i < snakeBodies.length; i++) {
+    let id = snakeBodies[i].dataset.id;
+    snakeBodies[i].addEventListener("click", () => {
+        console.log("SnakeBody mode " + id);
+        socket.emit('snakeBody', id);
     });
 }
 
