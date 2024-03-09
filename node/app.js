@@ -112,16 +112,30 @@ io.on('connection', (socket) => {
     });
     socket.on('snakeFlame', (arg) => {
         client.setID(1);
-        client.writeCoil(arg, true, function(err, data) {
-            if (data)
+        if (arg ==5)
+        {
+            if (snakeFlameChase == true)
             {
-                console.log(data);
+                snakeFlameChase = false;
             }
             else
             {
-                console.log(err);
+                snakeFlameChase = true;
             }
-        });
+        }
+        else
+        {
+            client.writeCoil(arg, true, function(err, data) {
+                if (data)
+                {
+                    console.log(data);
+                }
+                else
+                {
+                    console.log(err);
+                }
+            });
+        }
     });
     socket.on('snakeEye', (arg) => {
         client.setID(1);
@@ -280,9 +294,43 @@ function serverClose() {
     //process.kill(process.pid, "SIGINT");
 }
 
+let snakeFlameChase = false;
+let flameChaseId = 1;
+let skip = true;
+
+
 function update()
 {
     io.emit('score', holdingRegisters[0]);
+
+    if (snakeFlameChase == true)
+    {
+        if (skip == true)
+        {
+            skip = false;
+        }
+        else
+        {
+            client.setID(1);
+            client.writeCoil(flameChaseId, true, function(err, data) {
+                if (data)
+                {
+                    console.log(data);
+                }
+                else
+                {
+                    console.log(err);
+                }
+            });
+
+            flameChaseId = flameChaseId + 1;
+            if (flameChaseId > 5)
+            {
+                flameChaseId = 1;
+            }
+            skip = true;
+        }
+    }
 
     setTimeout(update, 200);
 }
