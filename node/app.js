@@ -53,6 +53,7 @@ var app = http.createServer(function(req, res) {
     const sanitizePath = path.normalize(parsedUrl.pathname).replace(/^(\.\.[\/\\])+/, '');
     const directory = '/html/' + sanitizePath;
     let pathname = path.join('/home/medusa/raspberry_pi_master_module/node/', directory);
+    //let pathname = path.join('/home/pi/raspberry_pi_master_module/node/', directory);
     //let pathname = path.join('C:\\Users\\nwill\\Documents\\GitHub\\raspberry_pi_master_module\\node', directory);
 
     // extract URL path
