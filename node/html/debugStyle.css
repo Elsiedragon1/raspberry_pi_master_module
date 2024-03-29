@@ -1,0 +1,57 @@
+body {
+    background-color: #666;
+}
+#container {
+    width: 50%;
+    margin: 0 auto;
+}
+.group {
+    display: flex;
+    padding-bottom: 10px;
+}
+.button {
+    flex-grow: 1;
+    display: inline-block;
+    background-color: #ccc;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 45px;
+    height: 45px;
+    border-radius: 10px;
+    margin: 2px;
+    user-select: none;
+    border: 0;
+    box-shadow: none;
+}
+.button:hover {
+    background-color: #999;
+}
+.button:active {
+    background-color: #F69;
+}
+.feedbackBlock {
+    display: inline-block;
+    background-color: #ccc;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 45px;
+    height: 45px;
+    width: 200px;
+    margin: 2px;
+}
+.feedback {
+    flex-grow: 1;
+    display: inline-block;
+    background-color: #ccc;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 45px;
+    height: 45px;
+    margin: 2px;
+}
+#resetButton {
+    width: 200px;
+}
+#modeButton {
+    background-color: #74c048;
+}

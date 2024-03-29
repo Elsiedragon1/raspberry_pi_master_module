@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>DEBUG - Medusa</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="./debugStyle.css" type="text/css" />
+        <!--<script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>-->
+        <script src="socket.io.min.js"></script>
+    <!--sourceMappingURL=socket.io.min.js.map-->
+    </head>
+    <body>
+        <div id="container">
+            Debug
+            <div class="group">
+                <div id="modeButton" class="button">Enable Debug</div>
+            </div>
+            Snake Heads (ID: 1)
+            <div class="group">
+                <div class="snakeFlames button" data-id="1">Fire 1</div>
+                <div class="snakeFlames button" data-id="2">Fire 2</div>
+                <div class="snakeFlames button" data-id="3">Fire 3</div>
+                <div class="snakeFlames button" data-id="4">Fire 4</div>
+                <div class="snakeFlames button" data-id="5">Toggle Chase</div>
+            </div>
+            <div class="group">
+                <div class="snakeMouths button" data-id="0">Animate</div>
+                <div class="snakeMouths button" data-id="1">Open Mouths</div>
+                <div class="snakeMouths button" data-id="2">Close Mouths</div>
+                <div class="snakeMouths button" data-id="3">Tongues Out</div>
+            </div>
+            <div class="group">
+                <div class="snakeEyes button" data-id="0">Animate Eyes</div>
+                <div class="snakeEyes button" data-id="1">Eyes On</div>
+                <div class="snakeEyes button" data-id="2">Eyes Off</div>
+            </div>
+            Snake Bodies (ID: 2)
+            <div class="group">
+                <div class="snakeBody button" data-id="0">Home</div>
+                <div class="snakeBody button" data-id="1">Dance</div>
+                <div class="snakeBody button" data-id="2">Straighten Up!</div>
+            </div>
+            Saxaphones (ID: 3)
+            <div class="group">
+                <div class="saxFlame button" data-id="1">Fire 1</div>
+                <div class="saxFlame button" data-id="2">Fire 2</div>
+                <div class="saxFlame button" data-id="3">Fire 3</div>
+                <div class="saxFlame button" data-id="4">Fire 4</div>
+                <div class="saxFlame button" data-id="5">Fire 5</div>
+            </div>
+            Scissor Lift (ID: 4)
+            <div class="group">
+                <div class="scissor button" data-id="2">Raise</div>
+                <div class="scissor button" data-id="4">STOP!</div>
+                <div class="scissor button" data-id="0">Lower</div>
+                <!--<div id="scissorStatus" class="feedbackBlock">UNKNOWN</div>-->
+            </div>
+            <!--
+            <div class="group">
+                <div class="scissorStop feedback" data-id="0">Bottom</div>
+                <div class="scissorStop feedback" data-id="1">Top</div>
+                <div class="scissorStop feedback" data-id="2">Emergency</div>
+            </div>
+            -->
+            Server (RPi)
+            <div class="group">
+                <div id="resetButton" class="button">Reset</div>
+            </div>
+        </div>
+        <script>
+
+        let mode = 'gameMode';
+        
+        const modeButton = document.getElementById("modeButton");
+        const resetButton = document.getElementById("resetButton");
+
+        const saxButtons = [...document.getElementsByClassName("saxFlame")];
+        const scissorButtons = [...document.getElementsByClassName("scissor")];
+        const scissorStatus = document.getElementById("scissorStatus");
+        const snakeFlames = [...document.getElementsByClassName("snakeFlames")];
+        const snakeMouths = [...document.getElementsByClassName("snakeMouths")];
+        const snakeEyes = [...document.getElementsByClassName("snakeEyes")];
+        const snakeBodies = [...document.getElementsByClassName("snakeBody")];
+        
+        // This should work more reliably than onbeforeunload - test!
+        addEventListener("visibilitychange", (event) => {
+            //console.log("Switching back to GAME mode automatically!");
+            modeButton.style.backgroundColor = "##74c048";
+            socket.emit('gameMode');
+            modeButton.innerHTML = 'Enable Debug';
+            mode = 'gameMode';
+        });
+        
+        modeButton.addEventListener("click", () => {
+            if (mode == 'gameMode')
+            {
+                // Switch to debug mode!
+                modeButton.style.backgroundColor = "#bd3232";
+                socket.emit('debugMode');
+                modeButton.innerHTML = 'Disable Debug';
+                mode = 'debugMode';
+            }
+            else
+            {
+                modeButton.style.backgroundColor = "#74c048";
+                socket.emit('gameMode');
+                modeButton.innerHTML = 'Enable Debug';
+                mode = 'gameMode';
+            }
+        });
+        // "Show the dialog" button opens the dialog modally
+        showButton.addEventListener("click", () => {
+            dialog.showModal();
+            socket.emit('debugMode');
+        });
+
+        // "Close" button closes the dialog
+        closeButton.addEventListener("click", () => {
+            dialog.close();
+            socket.emit('gameMode');
+        });
+
+        // "Reset" button
+        resetButton.addEventListener("click", () => {
+        socket.emit('reset');
+        });
+
+        for (var i = 0; i < snakeFlames.length; i++) {
+            let id = snakeFlames[i].dataset.id;
+            snakeFlames[i].addEventListener("click", () => {
+                console.log("Fire Snake Flame " + id);
+                socket.emit('snakeFlame', id);
+            });
+        }
+
+        for (var i = 0; i < snakeMouths.length; i++) {
+            let id = snakeMouths[i].dataset.id;
+            snakeMouths[i].addEventListener("click", () => {
+                console.log("Set snake mouths " + id);
+                socket.emit('snakeMouth', id);
+            });
+        }
+
+        for (var i = 0; i < snakeEyes.length; i++) {
+            let id = snakeEyes[i].dataset.id;
+            snakeEyes[i].addEventListener("click", () => {
+                console.log("Set snake eyes " + id);
+                socket.emit('snakeEye', id);
+            });
+        }
+
+        for (var i = 0; i < saxButtons.length; i++) {
+            let id = saxButtons[i].dataset.id;
+            saxButtons[i].addEventListener("click", () => {
+                console.log("Fire Saxaphone " + id);
+                socket.emit('saxaphone', id);
+            });
+        }
+
+        for (var i = 0; i < scissorButtons.length; i++) {
+            let id = scissorButtons[i].dataset.id;
+            scissorButtons[i].addEventListener("click", () => {
+                console.log("Scissor Mode " + id);
+                socket.emit('scissor', id);
+            });
+        }
+
+        for (var i = 0; i < snakeBodies.length; i++) {
+            let id = snakeBodies[i].dataset.id;
+            snakeBodies[i].addEventListener("click", () => {
+                console.log("SnakeBody mode " + id);
+                socket.emit('snakeBody', id);
+            });
+        }
+
+        const scissorStops= [...document.getElementsByClassName("scissorStop")];
+
+
+        socket.on('scissorStatus', function(data) {
+            console.log(data);
+        /*
+        #define LOWERED 0
+        #define RISE 1
+        #define RISEN 2
+        #define LOWER 3
+        #define STOP 4
+        #define ERROR 5
+        */
+            switch (data[0]) {
+                case 0:
+                    scissorStatus.innerHTML = "LOWERED";
+                    scissorStatus.style.backgroundColor = "#0F0";
+                    break;
+                case 1:
+                    scissorStatus.innerHTML = " RISE ";
+                    scissorStatus.style.backgroundColor = "#0FF";
+                    break;
+                case 2:
+                    scissorStatus.innerHTML = "RISEN";
+                    scissorStatus.style.backgroundColor = "#00F";
+                    break;
+                case 3:
+                    scissorStatus.innerHTML = "LOWER";
+                    scissorStatus.style.backgroundColor = "#0FF";
+                    break;
+                case 4:
+                    scissorStatus.innerHTML = " STOP ";
+                    scissorStatus.style.backgroundColor = "#FF0";
+                    break;
+                case 5:
+                    scissorStatus.innerHTML = "ERROR";
+                    scissorStatus.style.backgroundColor = "#F00";
+                    break;
+                default:
+                    break;
+            }
+        });
+
+        socket.on('scissorStop', function(data) {
+            console.log(data);
+            for (var i = 0; i < data.length; i++) {
+                if (data[i] == false)
+                {
+                    scissorStops[i].style.backgroundColor = "#3F3";
+                } else {
+                    scissorStops[i].style.backgroundColor = "#F33";
+                }
+            }
+        });
+        </script>
+    </body>
+</html>
