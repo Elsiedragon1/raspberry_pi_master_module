@@ -1,0 +1,101 @@
+html, body, div {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+body {
+    background-color: #666;
+}
+.group {
+    display: flex;
+    padding-bottom: 10px;
+}
+.button {
+    flex-grow: 1;
+    display: inline-block;
+    background-color: #ccc;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 45px;
+    height: 45px;
+    border-radius: 10px;
+    margin: 2px;
+    user-select: none;
+    border: 0;
+    box-shadow: none;
+}
+.button:hover {
+    background-color: #999;
+}
+.button:active {
+    background-color: #F69;
+}
+.feedbackBlock {
+    display: inline-block;
+    background-color: #ccc;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 45px;
+    height: 45px;
+    width: 200px;
+    margin: 2px;
+}
+.feedback {
+    flex-grow: 1;
+    display: inline-block;
+    background-color: #ccc;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 45px;
+    height: 45px;
+    margin: 2px;
+}
+#dailyscore {
+    font-size: 128px;
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+}
+#highscore {
+    font-size: 128px;
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+}
+#score {
+    display: block;
+    height: 1000px;
+    width: 100%;
+    font-size: 720px;
+    font-weight: bolder;
+    text-align: center;
+    /*-webkit-text-stroke: 3px #000000;*/
+    /*text-shadow: 0px 0px 10px 10px #333*/
+    -webkit-filter: drop-shadow(0px 0px 20px #000);
+    filter: drop-shadow(0px 0px 20px #000);
+    color: #c40d0d;
+}
+.message {
+    display: block;
+    position: absolute;
+    opacity: 0;
+    top: 0px;
+    left: 0px;
+    height: vh;
+    width:wh;
+    font-size: 720px;
+    font-weight:bolder;
+    text-align:center;
+    color: #ffd000;
+}
+.animateText {
+    animation: color-animation 0.5s linear;
+}
+dialog {
+    min-width: 30%;
+}
+@keyframes color-animation {
+    0%    {opacity: 0}
+    10%   {opacity: 1}
+    100%  {opacity: 0}
+}
