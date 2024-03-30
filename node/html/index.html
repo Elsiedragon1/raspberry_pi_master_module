@@ -46,6 +46,9 @@
                 <div class="saxFlame button" data-id="3">Fire 3</div>
                 <div class="saxFlame button" data-id="4">Fire 4</div>
                 <div class="saxFlame button" data-id="5">Fire 5</div>
+                <div class="saxFlame button" data-id="6">Fire 6</div>
+                <div class="saxFlame button" data-id="7">Fire 7</div>
+                <div class="saxFlame button" data-id="8">Fire 8</div>
             </div>
             Scissor Lift (ID: 4)
             <div class="group">
@@ -109,10 +112,6 @@ const snakeMouths = [...document.getElementsByClassName("snakeMouths")];
 const snakeEyes = [...document.getElementsByClassName("snakeEyes")];
 
 const snakeBodies = [...document.getElementsByClassName("snakeBody")];
-
-const soundYeah = document.getElementById("yeah");
-const soundWow = document.getElementById("wow");
-const soundYeah2 = document.getElementById("yeah2");
 
 const audio = [...document.getElementsByClassName("audio")];
 
@@ -241,7 +240,7 @@ function updateScore()
     dailyscoreDisplay.innerHTML = dailyscore;
     highscoreDisplay.innerHTML = highscore;
 
-    if ((score % 5) == 0)
+    if ((score % 5) == 0 && score != 0)
     {
         let rand = Math.floor(Math.random()*3);
         console.log(rand);
