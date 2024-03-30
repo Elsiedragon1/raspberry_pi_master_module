@@ -220,7 +220,7 @@ const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 let state = "GAME";
 
 //  This keeps track of the game mode!
-let mode = "IDLE";
+let mode = 0;
 //  Possible states:
 //  IDLE            -   Attract?                0
 //  TUTORIAL        -   Instructions            1
@@ -252,13 +252,14 @@ function clientConnect()
 }
 
 //  MODBUS Node Configuration
-const holdingRegisters = { [0]: 0, [1]: 0 };
+const holdingRegisters = { [0]: 0, [1]: 0, [2]: 0 };
 //const coils = {};
 //const inputRegisters = {};
 //const discreteInputs = {};
 
 const SCORE_REGISTER = 0;
 const MODE_REGISTER = 1;
+const CREDIT_REGISTER = 2;
 
 const vector = {
     setRegister: function(addr, value) {
@@ -298,10 +299,11 @@ let snakeFlameChase = false;
 let flameChaseId = 1;
 let skip = true;
 
-
 function update()
 {
     io.emit('score', holdingRegisters[0]);
+    io.emit('mode', holdingRegisters[1]);
+    io.emit('credits', holdingRegisters[2]);
 
     if (snakeFlameChase == true)
     {

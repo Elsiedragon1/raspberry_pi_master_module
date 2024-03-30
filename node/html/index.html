@@ -65,6 +65,9 @@
             <button id="closeDialog" autofocus>Close</button>
         </dialog>
         <button id="showDialog">Show the dialog</button>
+        <div id="credits">
+            0
+        </div>
         <div id="dailyscore">
             92
         </div>
@@ -95,6 +98,7 @@ const scissorStatus = document.getElementById("scissorStatus");
 const scoreDisplay = document.getElementById("score");
 const highscoreDisplay = document.getElementById("highscore");
 const dailyscoreDisplay = document.getElementById("dailyscore");
+const creditDisplay = document.getElementById("credits");
 
 const scissorStops= [...document.getElementsByClassName("scissorStop")];
 
@@ -177,13 +181,9 @@ for (var i = 0; i < snakeBodies.length; i++) {
     });
 }
 
-const STATE = {
-    IDLE: 'idle',
-    BUSK: 'busk',
-    GAME: 'game'
-}
+let mode = 0;
 
-let state = STATE.IDLE;
+let credits = 0;
 
 let highscore = 0;
 let dailyscore = 0;
@@ -252,7 +252,19 @@ function updateScore()
 
 }
 
+function updateCredits()
+{
+    creditDisplay.innerHTML = credits;
+}
+
+function updateMode()
+{
+    console.log("Mode update!");
+}
+
 updateScore(); // Updates score on start!
+updateCredits();
+updateMode();
 
 socket.on('score', function(data) {
     if (data != score)
@@ -260,6 +272,22 @@ socket.on('score', function(data) {
         console.log(data);
         score = data;
         updateScore();
+    }
+});
+socket.on('credits', function(data) {
+    if (data != credits)
+    {
+        console.log(data);
+        credits = data;
+        updateCredits();
+    }
+});
+socket.on('mode', function(data) {
+    if (data != mode)
+    {
+        console.log(data);
+        mode = data;
+        updateMode();
     }
 });
         </script>

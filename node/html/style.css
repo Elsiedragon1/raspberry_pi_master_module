@@ -50,6 +50,12 @@ body {
     height: 45px;
     margin: 2px;
 }
+#credits {
+    font-size: 128px;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+}
 #dailyscore {
     font-size: 128px;
     position: absolute;
