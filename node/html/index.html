@@ -212,6 +212,9 @@ let mode = 0;
 
 let credits = 0;
 
+let dailygames = 0;
+let totalgames = 0;
+
 let highscore = 0;
 let dailyscore = 0;
 let score = 0;
@@ -237,12 +240,43 @@ if (localStorage.getItem("today"))
     {
         dailyscore = localStorage.getItem("dailyscore");
     }
+    else
+    {
+        localStorage.setItem("today", today);
+        localStorage.setItem("dailyscore", dailyscore);
+    }
 }
 else
 {
     //  Create a new day
     localStorage.setItem("today", today);
     localStorage.setItem("dailyscore", dailyscore);
+}
+
+if (localStorage.getItem("totalgames"))
+{
+    totalgames = localStorage.getItem("totalgames");
+}
+else
+{
+    localStorage.setItem("totalgames", totalgames);
+}
+
+if (localStorage.getItem(today))
+{
+    dailygames = localStorage.getItem(today);
+}
+else
+{
+    localStorage.setItem(today, dailygames);
+}
+
+function incrementGameCount()
+{
+    dailygames = dailygames + 1;
+    totalgames = totalgames + 1;
+    localStorage.setItem("totalgames", totalgames);
+    localStorage.setItem(today, dailygames);
 }
 
 for (var i = 0; i < messages.length; i++) {
@@ -306,6 +340,7 @@ function updateMode()
             //  Use this to count the number of games!
             //todaysGames = todayGames + 1;
             //totalGames = totalGames + 1;
+            incrementGameCount();
             break;
         case 3:
             resetInstruction.classList.add("show");
