@@ -54,19 +54,19 @@ body {
     font-size: 128px;
     position: absolute;
     top: 0px;
-    right: 0px;
+    right: 200px;
 }
 #dailyscore {
     font-size: 128px;
     position: absolute;
     bottom: 0px;
-    left: 0px;
+    left: 200px;
 }
 #highscore {
     font-size: 128px;
     position: absolute;
     bottom: 0px;
-    right: 0px;
+    right: 200px;
 }
 #score {
     display: block;
