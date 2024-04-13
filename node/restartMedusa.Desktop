@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Exec=/home/medusa/raspberry_pi_master_module/restartMedusa.sh
+Name=Restart Medusa
+GenericName=Restart Medusa Server
+Comment=Restart Medusa Server
+Encoding=UTF-8
+Terminal=true
+Type=Application
+Categories=Application;Network;
