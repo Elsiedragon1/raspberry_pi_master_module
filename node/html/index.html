@@ -83,9 +83,23 @@
         <div id="score">
             9013
         </div>
+        <div id="idle_instruction" class="instruction show" data-id="0">
+            <p>Hit the drum that matches the target light!</p>
+            <p>Insert token to start a new game!</p>
+        </div>
+        <div id="reset_instruction" class="instruction" data-id="3">
+            <p>Please wait while the game resets!</p>
+            <p>If there are any credits a new game will begin immediately!</p>
+        </div>
+        <div id="hardmode_instruction" class="instruction" data-id="4">
+            <p>Now we'll make things interesting!</p>
+            <p>Can you keep up?</p>
+        </div>
         <div class="message animateText" data-id="1">Great!</div>
         <div class="message animateText" data-id="2">Ace!</div>
         <div class="message animateText" data-id="3">Nice!</div>
+
+        <!--<div id="newHighScore" class="message animateText" data-id="4">NEW HIGH SCORE!</div>-->
 
         <script>
 const socket = io();
@@ -117,6 +131,17 @@ const snakeEyes = [...document.getElementsByClassName("snakeEyes")];
 const snakeBodies = [...document.getElementsByClassName("snakeBody")];
 
 const audio = [...document.getElementsByClassName("audio")];
+
+const idleInstruction = document.getElementById("idle_instruction");
+const resetInstruction = document.getElementById("reset_instruction");
+const hardmodeInstruction = document.getElementById("hardmode_instruction");
+
+function hideInstructions()
+{
+    idleInstruction.classList.remove("show");
+    resetInstruction.classList.remove("show");
+    hardmodeInstruction.classList.remove("show");
+}
 
 // "Show the dialog" button opens the dialog modally
 showButton.addEventListener("click", () => {
@@ -215,6 +240,7 @@ if (localStorage.getItem("today"))
 }
 else
 {
+    //  Create a new day
     localStorage.setItem("today", today);
     localStorage.setItem("dailyscore", dailyscore);
 }
@@ -262,6 +288,34 @@ function updateCredits()
 function updateMode()
 {
     console.log("Mode update!");
+    // mode
+    // 0 = IDLE (Instructions!)
+    // 1 = BUSK ... not implemented
+    // 2 = GAME (Remove all messages)
+    // 3 = FAIL (RESETTING! Please wait!)
+    // 4 = TUTORIAL OVER! (Getting faster now!)
+
+    // As well as doing this as event driven it might be wise to have a backup
+    // i.e. Also remove all instructions if a non-zero score is received!
+    hideInstructions();
+    switch (mode) {
+        case 0:
+            idleInstruction.classList.add("show");
+            break;
+        case 2:
+            //  Use this to count the number of games!
+            //todaysGames = todayGames + 1;
+            //totalGames = totalGames + 1;
+            break;
+        case 3:
+            resetInstruction.classList.add("show");
+            break;
+        case 4:
+            hardmodeInstruction.classList.add("show");
+            break;
+        default:
+            break;
+    }
 }
 
 updateScore(); // Updates score on start!
@@ -274,6 +328,10 @@ socket.on('score', function(data) {
         console.log(data);
         score = data;
         updateScore();
+        if (data != 0)
+        {
+            hideInstructions();
+        }
     }
 });
 socket.on('credits', function(data) {
