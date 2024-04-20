@@ -1,3 +1,3 @@
 #! /usr/bin/sh
 killall node
-node /home/medusa/raspberry_pi_master_module/node/app.js
+nice -n 10 node /home/medusa/raspberry_pi_master_module/node/app.js

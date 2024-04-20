@@ -1,3 +1,15 @@
+@font-face {
+    font-family: "jamesfajardo";
+    src: url("./james_fajardo.ttf");
+}
+@font-face {
+    font-family: "cardboard";
+    src: url("./CardboardCat-Bold.otf");
+}
+@font-face {
+    font-family: "snake";
+    src: url("./SnakeHoliday.otf");
+}
 html, body, div {
     margin: 0;
     padding: 0;
@@ -5,6 +17,8 @@ html, body, div {
 }
 body {
     background-color: #666;
+    background-image: url("./texture.jpg");
+    background-size: cover;
 }
 .group {
     display: flex;
@@ -51,24 +65,28 @@ body {
     margin: 2px;
 }
 #credits {
-    font-size: 128px;
+    font-family: "jamesfajardo";
+    font-size: 256px;
     position: absolute;
     top: 0px;
     right: 200px;
 }
 #dailyscore {
-    font-size: 128px;
+    font-family: "jamesfajardo";
+    font-size: 256px;
     position: absolute;
     bottom: 0px;
     left: 200px;
 }
 #highscore {
-    font-size: 128px;
+    font-family: "jamesfajardo";
+    font-size: 256px;
     position: absolute;
     bottom: 0px;
     right: 200px;
 }
 #score {
+    font-family: "jamesfajardo";
     display: block;
     height: 1000px;
     width: 100%;
@@ -88,6 +106,7 @@ body {
     align-items: center;
     text-align: center;
     position: absolute;
+    border-radius: 10vh;
     width: 97vw;
     height: 94vh;
     top: 0px;
@@ -96,23 +115,33 @@ body {
     background: rgba(128,128,128,0.8);
     visibility: hidden;
     font-size: 80px;
+    font-family: "snake";
+    text-transform: capitalize;
 }
 .show {
     visibility: visible;
 }
+#showDialog {
+    border: 0px;
+    background: darkslategray;
+}
 .message {
-    display: block;
+    font-family: "snake";
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
     position: absolute;
-    opacity: 0;
+    width: 97vw;
+    height: 94vh;
     top: 0px;
     left: 0px;
-    height: vh;
-    width:wh;
-    font-size: 720px;
-    font-weight:bolder;
-    text-align:center;
-    color: #ffd000;
+    margin: 3vh 1.5vw;
+    color: #eecc00;
     margin-top: 20px;
+    font-size: 450px;
+    opacity: 0;
 }
 .animateText {
     animation: color-animation 0.5s linear;

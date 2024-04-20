@@ -1,0 +1,4 @@
+[Desktop Entry]
+Type=Application
+Name=Medusa
+Exec=nice -n 10 /usr/local/bin/node /home/medusa/raspberry_pi_master_module/node/app.js
