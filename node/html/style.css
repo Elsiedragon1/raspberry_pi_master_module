@@ -114,9 +114,12 @@ body {
     margin: 3vh 1.5vw;
     background: rgba(128,128,128,0.8);
     visibility: hidden;
-    font-size: 80px;
+    font-size: 90px;
     font-family: "snake";
     text-transform: capitalize;
+}
+.instruction p {
+    width: 80%;
 }
 .show {
     visibility: visible;
