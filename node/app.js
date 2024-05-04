@@ -7,7 +7,7 @@ import modbusRTU from 'modbus-serial';
 
 //  Serial Ports
 const rpiPort = {
-    port: '/dev/serial/by-id/usb-1a86_USB_Single_Serial_556F024543-if00',
+    port: '/dev/ttyACM0',
     //port: '/dev/serial/by-id/usb-1a86_USB_Single_Serial_5659012619-if00',
     baudRate: 115200,
     unitID: 6,
@@ -234,7 +234,7 @@ function clientConnect()
 {
     client = new modbusRTU;
     //client.connectRTUBuffered('COM10', { baudRate: 115200, unitID: 6, dataBits: 8, parity: 'even', stopBits: 1, flowcontrol: false });
-    client.connectRTUBuffered('/dev/serial/by-id/usb-1a86_USB_Single_Serial_556F024543-if00', { baudRate: 115200, unitID: 6, dataBits: 8, parity: 'even', stopBits: 1, flowcontrol: false });
+    client.connectRTUBuffered('/dev/ttyACM0', { baudRate: 115200, unitID: 6, dataBits: 8, parity: 'even', stopBits: 1, flowcontrol: false });
 }
 
 //  MODBUS Node Configuration
