@@ -255,7 +255,7 @@ else
 
 if (localStorage.getItem("totalgames"))
 {
-    totalgames = localStorage.getItem("totalgames");
+    totalgames = Number(localStorage.getItem("totalgames"));
 }
 else
 {
@@ -264,7 +264,7 @@ else
 
 if (localStorage.getItem(today))
 {
-    dailygames = localStorage.getItem(today);
+    dailygames = Number(localStorage.getItem(today));
 }
 else
 {
@@ -319,6 +319,11 @@ function updateCredits()
     creditDisplay.innerHTML = credits;
 }
 
+function showReset()
+{
+    resetInstruction.classList.add("show");
+}
+
 function updateMode()
 {
     console.log("Mode update!");
@@ -343,7 +348,7 @@ function updateMode()
             incrementGameCount();
             break;
         case 3:
-            resetInstruction.classList.add("show");
+            setTimeout(showReset, 10000);
             break;
         case 4:
             hardmodeInstruction.classList.add("show");
