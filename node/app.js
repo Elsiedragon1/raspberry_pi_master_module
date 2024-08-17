@@ -95,6 +95,8 @@ var app = http.createServer(function(req, res) {
 import { Server } from "socket.io";
 const io = new Server(app);
 
+let testSignal = false;
+
 io.on('connection', (socket) => {
     socket.on('debugMode', () => {
         serverSerial.close(clientConnect);
@@ -192,6 +194,16 @@ io.on('connection', (socket) => {
             }
         });
     });
+    socket.on('testSignal', (arg) => {
+        console.log('Test Signal');
+        if (testSignal) {
+            testSignal = false;
+            console.log('Test Signal Off')
+        } else {
+            testSignal = true;
+            console.log('Test Signal On')
+        }
+    });
     socket.on('disconnect', () => {
         // Housekeeping can be done here after browser is closed/disconnected
     });
@@ -286,7 +298,24 @@ function update()
     io.emit('score', holdingRegisters[0]);
     io.emit('mode', holdingRegisters[1]);
     io.emit('credits', holdingRegisters[2]);
+    io.emit('testSignal', testSignal);
 
+    if (state != "GAME")
+    {
+        if (testSignal) {
+            client.setID(9);
+            client.writeCoil(10, true, function(err, data) {
+                if (data)
+                {
+                    console.log(data);
+                }
+                else
+                {
+                    console.log(err);
+                }
+            });
+        }
+    }
     setTimeout(update, 200);
 }
 

@@ -60,6 +60,10 @@
                 <div class="scissor button" data-id="0">Lower</div>
                 <!--<div id="scissorStatus" class="feedbackBlock">UNKNOWN</div>-->
             </div>
+            Test Signal (ID: 9)
+            <div class="group">
+                <div id="test_signal" class="button" data-id="0">Toggle Test Signal</div>
+            </div>
             <!--
             <div class="group">
                 <div class="scissorStop feedback" data-id="0">Bottom</div>
@@ -132,6 +136,8 @@ const snakeBodies = [...document.getElementsByClassName("snakeBody")];
 
 const audio = [...document.getElementsByClassName("audio")];
 
+const testSignal = document.getElementById("test_signal");
+
 const idleInstruction = document.getElementById("idle_instruction");
 const resetInstruction = document.getElementById("reset_instruction");
 const hardmodeInstruction = document.getElementById("hardmode_instruction");
@@ -159,6 +165,10 @@ closeButton.addEventListener("click", () => {
 resetButton.addEventListener("click", () => {
   socket.emit('reset');
 });
+
+testSignal.addEventListener("click", () => {
+    socket.emit('testSignal');
+})
 
 for (var i = 0; i < snakeFlames.length; i++) {
     let id = snakeFlames[i].dataset.id;
@@ -389,6 +399,22 @@ socket.on('mode', function(data) {
         console.log(data);
         mode = data;
         updateMode();
+    }
+});
+let testSignalState = false;
+socket.on('testSignal', function(data) {
+    if (data == true)
+    {
+        if (testSignalState == false) {
+            
+            console.log('Test Signal On');
+            testSignalState = true;
+        }
+    } else {
+        if (testSignalState == true) {
+            console.log('Test Signal Off');
+            testSignalState = false;
+        }
     }
 });
         </script>
