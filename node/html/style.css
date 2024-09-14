@@ -98,6 +98,7 @@ body {
     -webkit-filter: drop-shadow(0px 0px 20px #000);
     filter: drop-shadow(0px 0px 20px #000);
     color: #c40d0d;
+    pointer-events: none;
 }
 .instruction {
     display:flex;
@@ -117,6 +118,7 @@ body {
     font-size: 90px;
     font-family: "snake";
     text-transform: capitalize;
+    pointer-events: none;
 }
 .instruction p {
     width: 80%;
@@ -145,6 +147,7 @@ body {
     margin-top: 20px;
     font-size: 450px;
     opacity: 0;
+    pointer-events: none;
 }
 .animateText {
     animation: color-animation 0.5s linear;

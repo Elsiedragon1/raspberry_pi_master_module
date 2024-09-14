@@ -168,7 +168,23 @@ resetButton.addEventListener("click", () => {
 
 testSignal.addEventListener("click", () => {
     socket.emit('testSignal');
-})
+});
+
+dailyscoreDisplay.addEventListener("click", () => {
+    score = 0;
+    dailyscore = 0;
+    localStorage.setItem("dailyscore", dailyscore);
+    updateScore();
+});
+
+highscoreDisplay.addEventListener("click", () => {
+    score = 0;
+    dailyscore = 0;
+    localStorage.setItem("dailyscore", dailyscore);
+    highscore = 0;
+    localStorage.setItem("highscore", highscore);
+    updateScore();
+});
 
 for (var i = 0; i < snakeFlames.length; i++) {
     let id = snakeFlames[i].dataset.id;
@@ -218,20 +234,21 @@ for (var i = 0; i < snakeBodies.length; i++) {
     });
 }
 
-let mode = 0;
+var mode = 0;
 
-let credits = 0;
+var credits = 0;
 
 let dailygames = 0;
 let totalgames = 0;
 
-let highscore = 0;
-let dailyscore = 0;
-let score = 0;
+var highscore = 0;
+var dailyscore = 0;
+var score = 0;
 let today = new Date();
 var dd = String(today.getDate()).padStart(2, '0');
 var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
 var yyyy = today.getFullYear();
+
 today = yyyy + '/' + mm + '/' + dd;
 
 if (localStorage.getItem("highscore"))
@@ -309,6 +326,7 @@ function updateScore()
         highscore = score;
         localStorage.setItem("highscore", highscore);
     }
+
     scoreDisplay.innerHTML = score;
     dailyscoreDisplay.innerHTML = dailyscore;
     highscoreDisplay.innerHTML = highscore;
@@ -321,7 +339,6 @@ function updateScore()
     }
     let ran = Math.floor(Math.random()*3);
     messages[ran].classList.add("animateText");
-
 }
 
 function updateCredits()
