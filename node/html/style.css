@@ -128,7 +128,10 @@ body {
 }
 #showDialog {
     border: 0px;
-    background: darkslategray;
+    background: #c40d0d;
+    padding: 10px;
+    font-size:24px;
+    border-radius: 10px;
 }
 .message {
     font-family: "snake";
